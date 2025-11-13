@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiEmployeeRouteImport } from './routes/api/employee'
 import { Route as appEmployeeRouteImport } from './routes/(app)/employee'
-import { Route as appBarcodeRouteImport } from './routes/(app)/barcode'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,42 +28,33 @@ const appEmployeeRoute = appEmployeeRouteImport.update({
   path: '/employee',
   getParentRoute: () => rootRouteImport,
 } as any)
-const appBarcodeRoute = appBarcodeRouteImport.update({
-  id: '/(app)/barcode',
-  path: '/barcode',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/barcode': typeof appBarcodeRoute
   '/employee': typeof appEmployeeRoute
   '/api/employee': typeof ApiEmployeeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/barcode': typeof appBarcodeRoute
   '/employee': typeof appEmployeeRoute
   '/api/employee': typeof ApiEmployeeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/(app)/barcode': typeof appBarcodeRoute
   '/(app)/employee': typeof appEmployeeRoute
   '/api/employee': typeof ApiEmployeeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/barcode' | '/employee' | '/api/employee'
+  fullPaths: '/' | '/employee' | '/api/employee'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/barcode' | '/employee' | '/api/employee'
-  id: '__root__' | '/' | '/(app)/barcode' | '/(app)/employee' | '/api/employee'
+  to: '/' | '/employee' | '/api/employee'
+  id: '__root__' | '/' | '/(app)/employee' | '/api/employee'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  appBarcodeRoute: typeof appBarcodeRoute
   appEmployeeRoute: typeof appEmployeeRoute
   ApiEmployeeRoute: typeof ApiEmployeeRoute
 }
@@ -92,19 +82,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appEmployeeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(app)/barcode': {
-      id: '/(app)/barcode'
-      path: '/barcode'
-      fullPath: '/barcode'
-      preLoaderRoute: typeof appBarcodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  appBarcodeRoute: appBarcodeRoute,
   appEmployeeRoute: appEmployeeRoute,
   ApiEmployeeRoute: ApiEmployeeRoute,
 }

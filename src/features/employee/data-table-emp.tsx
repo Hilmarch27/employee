@@ -1,6 +1,10 @@
+import { useForm } from '@tanstack/react-form';
+import { useMutation } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Calendar, Text, UserRoundPlus } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
@@ -16,6 +20,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import type { Employee } from '@/db/schema';
 import { envClient } from '@/env';
 import {
@@ -24,6 +41,11 @@ import {
 	useClientTable,
 } from '@/hooks/use-client-table';
 import { formatDateTime } from '@/lib/utils';
+import {
+	CreateEmployeeSc,
+	createEmployee,
+	type EmployeeInput,
+} from '@/server-function/employee-fn';
 
 function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 	return [
@@ -213,6 +235,39 @@ function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 }
 
 export function DataTableEmployee({ data }: { data: Employee[] }) {
+	const [open, setOpen] = useState(false);
+	const postEmployee = useServerFn(createEmployee);
+
+	const { mutateAsync } = useMutation({
+		mutationFn: postEmployee,
+		onSuccess: () => {
+			toast.success('Employee created successfully');
+			form.reset();
+			setOpen(false);
+		},
+		onError: () => {
+			toast.error('Failed to create employee');
+		},
+	});
+
+	const form = useForm({
+		defaultValues: {
+			name: '',
+			position: '',
+		} as EmployeeInput,
+		validators: {
+			onBlur: CreateEmployeeSc,
+		},
+		onSubmit: async ({ value }) => {
+			console.log(value);
+			toast.promise(mutateAsync({ data: value }), {
+				loading: 'Creating employee...',
+				success: 'Employee created successfully',
+				error: 'Failed to create employee',
+			});
+		},
+	});
+
 	const columns = useMemo(() => {
 		return COLUMNS_EMPLOYEES();
 	}, []);
@@ -236,12 +291,81 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 		<div className="w-full">
 			<DataTable className="min-h-[570px] py-3" table={table}>
 				<DataTableToolbar table={table}>
-					<Button variant="outline" size="sm" className="h-8">
+					<Button
+						onClick={() => setOpen(true)}
+						variant="outline"
+						size="sm"
+						className="h-8"
+					>
 						Create New
 						<UserRoundPlus className="ml-2 h-4 w-4" />
 					</Button>
 				</DataTableToolbar>
 			</DataTable>
+			<Dialog open={open} onOpenChange={setOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Create New Employee</DialogTitle>
+					</DialogHeader>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							form.handleSubmit();
+						}}
+					>
+						<FieldGroup>
+							<form.Field name="name">
+								{(field) => {
+									const isInvalid =
+										field.state.meta.isTouched && !field.state.meta.isValid;
+									return (
+										<Field data-invalid={isInvalid}>
+											<FieldLabel htmlFor={field.name}>Name</FieldLabel>
+											<Input
+												id={field.name}
+												name={field.name}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+												placeholder="Enter name"
+												autoComplete="off"
+											/>
+											{isInvalid && (
+												<FieldError errors={field.state.meta.errors} />
+											)}
+										</Field>
+									);
+								}}
+							</form.Field>
+							<form.Field name="position">
+								{(field) => {
+									const isInvalid =
+										field.state.meta.isTouched && !field.state.meta.isValid;
+									return (
+										<Field data-invalid={isInvalid}>
+											<FieldLabel htmlFor={field.name}>Position</FieldLabel>
+											<Input
+												id={field.name}
+												name={field.name}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+												placeholder="Enter position"
+												autoComplete="off"
+											/>
+											{isInvalid && (
+												<FieldError errors={field.state.meta.errors} />
+											)}
+										</Field>
+									);
+								}}
+							</form.Field>
+						</FieldGroup>
+					</form>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

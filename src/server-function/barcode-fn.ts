@@ -1,10 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createServerFn } from '@tanstack/react-start';
-import { setResponseHeader } from '@tanstack/start-server-core';
 import { createCanvas, loadImage } from 'canvas';
 import { and, desc, eq, gte, lt, sql } from 'drizzle-orm';
-import ExcelJS from 'exceljs';
 import QRCode from 'qrcode';
 import z from 'zod';
 import { db } from '@/db';
@@ -273,66 +271,3 @@ export const getHaircutHistory = createServerFn({ method: 'GET' }).handler(
 		}
 	},
 );
-
-export const exportHaircutHistoryExcel = async () => {
-	try {
-		// Ambil data dari fungsi existing
-		const { data } = await getHaircutHistory();
-
-		// Buat workbook baru
-		const workbook = new ExcelJS.Workbook();
-		const worksheet = workbook.addWorksheet('Haircut History');
-
-		// Header kolom
-		worksheet.columns = [
-			{ header: 'No', key: 'no', width: 5 },
-			{ header: 'Name', key: 'name', width: 25 },
-			{ header: 'Position', key: 'position', width: 20 },
-			{ header: 'Badge', key: 'badge', width: 15 },
-			{ header: 'Tanggal', key: 'tanggal', width: 15 },
-			{ header: 'Waktu', key: 'waktu', width: 15 },
-			{ header: 'Bulan & Tahun', key: 'bulanTahun', width: 20 },
-		];
-
-		// Isi data
-		data.forEach((record, index) => {
-			const tanggal = new Date(record.haircutDate).toLocaleDateString('id-ID');
-
-			worksheet.addRow({
-				no: index + 1,
-				name: record.name,
-				position: record.position,
-				badge: record.badge,
-				tanggal,
-				waktu: record.formattedTime,
-				bulanTahun: record.monthYear,
-			});
-		});
-
-		// Styling header (optional)
-		worksheet.getRow(1).font = { bold: true };
-		worksheet.getRow(1).alignment = { horizontal: 'center' };
-
-		// Auto filter (optional)
-		worksheet.autoFilter = {
-			from: 'A1',
-			to: 'G1',
-		};
-
-		// Buffer hasil Excel
-		const buffer = await workbook.xlsx.writeBuffer();
-
-		setResponseHeader(
-			'Content-Disposition',
-			'attachment; filename=haircut-history.xlsx',
-		);
-		setResponseHeader(
-			'Content-Type',
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-		);
-		return buffer;
-	} catch (error) {
-		console.error('Gagal export Excel:', error);
-		throw new Error('Export Excel gagal');
-	}
-};

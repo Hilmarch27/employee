@@ -3,6 +3,8 @@ import { useServerFn } from '@tanstack/react-start';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Briefcase, Calendar, FileSpreadsheet, Text } from 'lucide-react';
 import { useMemo } from 'react';
+import { toast } from 'sonner';
+import { utils, writeFile } from 'xlsx';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
@@ -14,13 +16,12 @@ import {
 	includesTrimmed,
 	useClientTable,
 } from '@/hooks/use-client-table';
-import { exportHaircutHistoryExcel } from '@/server-function/barcode-fn';
+// import { exportHaircutHistoryExcel } from '@/server-function/barcode-fn';
 import { getPositions } from '@/server-function/employee-fn';
 
 function COLUMNS_HAIRCUT_HISTORY(
 	positionItems: ComboboxItem[],
 ): ColumnDef<HaircutHistory>[] {
-	console.log(positionItems);
 	return [
 		{
 			id: 'no',
@@ -131,10 +132,55 @@ export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
 	const getData = useServerFn(getPositions);
 
 	const handleExportExcel = async () => {
-		const buffer = await exportHaircutHistoryExcel();
-		const url = URL.createObjectURL(new Blob([buffer]));
-		window.open(url, '_blank');
+		try {
+			// Format data untuk Excel
+			const excelData = data.map((item, index) => ({
+				No: index + 1,
+				Name: item.name,
+				Position: item.position,
+				Badge: item.badge,
+				Date:
+					item.haircutDate instanceof Date &&
+					!Number.isNaN(item.haircutDate.getTime())
+						? item.haircutDate.toLocaleDateString('id-ID', {
+								weekday: 'long',
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric',
+							})
+						: '-',
+				Time: item.formattedTime,
+				'Month & Year': item.monthYear,
+			}));
+
+			// Buat worksheet
+			const worksheet = utils.json_to_sheet(excelData);
+
+			// Atur lebar kolom
+			const columnWidths = [
+				{ wch: 5 }, // No
+				{ wch: 20 }, // Name
+				{ wch: 20 }, // Position
+				{ wch: 10 }, // Badge
+				{ wch: 30 }, // Date
+				{ wch: 15 }, // Time
+				{ wch: 15 }, // Month & Year
+			];
+			worksheet['!cols'] = columnWidths;
+
+			// Buat workbook
+			const workbook = utils.book_new();
+			utils.book_append_sheet(workbook, worksheet, 'Haircut History');
+
+			// Export file
+			const fileName = `haircut_history_${new Date().toISOString().split('T')[0]}.xlsx`;
+			writeFile(workbook, fileName);
+		} catch (error) {
+			console.error('Error exporting to Excel:', error);
+			toast.error('Failed to export data');
+		}
 	};
+
 	const { data: positions = [] } = useQuery({
 		queryKey: ['positions'],
 		queryFn: () => getData(),

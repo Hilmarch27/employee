@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import z from 'zod';
 import { db } from '@/db';
 import { employees } from '@/db/schema';
+import { generateBadgeNumber } from '@/lib/utils';
 
 export const CreateEmployeeSc = z.object({
 	name: z.string().min(1),
@@ -10,6 +11,28 @@ export const CreateEmployeeSc = z.object({
 });
 
 export type EmployeeInput = z.infer<typeof CreateEmployeeSc>;
+
+export const createEmployee = createServerFn({ method: 'POST' })
+	.inputValidator(CreateEmployeeSc)
+	.handler(async ({ data }) => {
+		const [lastSequence] = await db
+			.select({ badge: employees.badge })
+			.from(employees)
+			.where(eq(employees.position, data.position))
+			.orderBy(desc(employees.badge))
+			.limit(1);
+
+		if (!lastSequence) {
+			const badge = generateBadgeNumber(data.position, 1);
+			const payload = { ...data, badge };
+			const employee = await db.insert(employees).values(payload).returning();
+			return {
+				message: 'Employee created successfully',
+				result: employee,
+			};
+		}
+		throw new Error('Sequence not found');
+	});
 
 export const getEmployees = createServerFn({ method: 'GET' }).handler(
 	async () => {
