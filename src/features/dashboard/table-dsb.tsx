@@ -14,6 +14,7 @@ import {
 	includesTrimmed,
 	useClientTable,
 } from '@/hooks/use-client-table';
+import { exportHaircutHistoryExcel } from '@/server-function/barcode-fn';
 import { getPositions } from '@/server-function/employee-fn';
 
 function COLUMNS_HAIRCUT_HISTORY(
@@ -77,7 +78,7 @@ function COLUMNS_HAIRCUT_HISTORY(
 			id: 'haircutDate',
 			accessorKey: 'haircutDate',
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Tanggal" />
+				<DataTableColumnHeader column={column} title="Date" />
 			),
 			cell: ({ row }) => {
 				const haircutDate = row.getValue('haircutDate');
@@ -112,14 +113,14 @@ function COLUMNS_HAIRCUT_HISTORY(
 		{
 			accessorKey: 'formattedTime',
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Waktu" />
+				<DataTableColumnHeader column={column} title="Time" />
 			),
 			cell: ({ row }) => <div>{row.getValue('formattedTime')}</div>,
 		},
 		{
 			accessorKey: 'monthYear',
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Bulan & Tahun" />
+				<DataTableColumnHeader column={column} title="Month & Year" />
 			),
 			cell: ({ row }) => <div>{row.getValue('monthYear')}</div>,
 		},
@@ -129,6 +130,11 @@ function COLUMNS_HAIRCUT_HISTORY(
 export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
 	const getData = useServerFn(getPositions);
 
+	const handleExportExcel = async () => {
+		const buffer = await exportHaircutHistoryExcel();
+		const url = URL.createObjectURL(new Blob([buffer]));
+		window.open(url, '_blank');
+	};
 	const { data: positions = [] } = useQuery({
 		queryKey: ['positions'],
 		queryFn: () => getData(),
@@ -153,7 +159,12 @@ export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
 		<div className="w-full">
 			<DataTable className="py-3 mt-10" table={table}>
 				<DataTableToolbar table={table}>
-					<Button variant="outline" size="sm" className="h-8">
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-8"
+						onClick={handleExportExcel}
+					>
 						Export Excel
 						<FileSpreadsheet className="ml-2 h-4 w-4" />
 					</Button>
