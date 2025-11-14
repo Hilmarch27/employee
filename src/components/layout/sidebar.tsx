@@ -1,6 +1,6 @@
 import { useLocation } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
-import { Command, Home, LogOut, Users } from 'lucide-react';
+import { Command, Home, Users } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import {
 	Sidebar,
@@ -27,13 +27,6 @@ export const DATA_SIDEBAR = {
 			name: 'Employee',
 			url: '/employee',
 			icon: Users,
-		},
-	],
-	navSecondary: [
-		{
-			title: 'Logout',
-			url: '#',
-			icon: LogOut,
 		},
 	],
 };
@@ -77,6 +70,7 @@ type SecondaryNavProps = {
 	}>;
 };
 
+// biome-ignore lint/correctness/noUnusedVariables: this is a valid use case
 function SecondaryNav({
 	items,
 	...props
@@ -123,7 +117,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<MainNav items={DATA_SIDEBAR.navMain} />
-				<SecondaryNav items={DATA_SIDEBAR.navSecondary} className="mt-auto" />
+				{/* <SecondaryNav items={DATA_SIDEBAR.navSecondary} className="mt-auto" /> */}
 			</SidebarContent>
 		</Sidebar>
 	);

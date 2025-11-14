@@ -1,7 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { createServerFn } from '@tanstack/react-start';
-import { and, asc, desc, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lt, lte, type SQL, sql } from 'drizzle-orm';
 import QRCode from 'qrcode';
 import sharp from 'sharp';
 import z from 'zod';
@@ -235,9 +233,37 @@ export const scanBarcode = createServerFn({ method: 'POST' })
 		}
 	});
 
-export const getHaircutHistory = createServerFn({ method: 'GET' }).handler(
-	async () => {
+export const getHaircutHistory = createServerFn({ method: 'GET' })
+	.inputValidator(
+		z
+			.object({
+				range: z.array(z.number()).min(2),
+			})
+			.optional(),
+	)
+	.handler(async ({ data }) => {
+		const { range = [] } = data || {};
 		try {
+			const filters: SQL[] = [];
+
+			let start: Date | undefined;
+			let end: Date | undefined;
+			if (range && range.length >= 2) {
+				const [startEpoch, endEpoch] = range;
+				start = new Date(startEpoch);
+				end = new Date(endEpoch);
+
+				// Atur ke awal dan akhir hari
+				start.setHours(0, 0, 0, 0);
+				end.setHours(23, 59, 59, 999);
+
+				// Misalnya filter berdasarkan range waktu
+				filters.push(
+					gte(haircutHistory.haircutDate, start),
+					lte(haircutHistory.haircutDate, end),
+				);
+			}
+
 			// Query with join, sorted by newest first
 			const records = await db
 				.select({
@@ -254,6 +280,7 @@ export const getHaircutHistory = createServerFn({ method: 'GET' }).handler(
 					employees,
 					sql`${haircutHistory.employeeId} = ${employees.id}`,
 				)
+				.where(and(...filters))
 				.orderBy(asc(employees.position), desc(haircutHistory.haircutDate));
 
 			// Format records
@@ -288,5 +315,4 @@ export const getHaircutHistory = createServerFn({ method: 'GET' }).handler(
 			console.error('Error fetching haircut history:', error);
 			throw new Error('Gagal mengambil data history');
 		}
-	},
-);
+	});

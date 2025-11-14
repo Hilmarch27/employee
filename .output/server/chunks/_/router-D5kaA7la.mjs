@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
-import { d as db, e as employees, g as generateBadgeNumber, c as cn } from "./index-Dmu0Fhot.mjs";
+import { d as db, e as employees, g as generateBadgeNumber, a as uploadRouter, c as cn } from "./config-CJ6AisJq.mjs";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import * as React from "react";
@@ -16,10 +16,10 @@ import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { useTheme } from "next-themes";
 import { Toaster as Toaster$1 } from "sonner";
 import { createRouteHandler } from "uploadthing/server";
-import { a as uploadRouter } from "./config-BHLBq3j-.mjs";
 import { sql, desc, eq } from "drizzle-orm";
 import z from "zod";
-import { j as json, c as createServerFn, T as TSS_SERVER_FUNCTION, g as getServerFnById } from "./server.mjs";
+import { c as createSsrRpc, g as getHaircutHistory, u as utils, w as writeSync } from "./barcode-fn-Juir5gW5.mjs";
+import { j as json, c as createServerFn, g as getResponseHeaders, s as setResponseHeaders } from "./server.mjs";
 const toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 const toCamelCase = (string) => string.replace(
   /^([A-Z])|[\s-_]+(\w)/g,
@@ -95,21 +95,21 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$b = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$b);
-const __iconNode$a = [
+const __iconNode$a = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$a);
+const __iconNode$9 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$a);
-const __iconNode$9 = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$9);
+const __iconNode$8 = [
   [
     "path",
     { d: "M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3", key: "11bfej" }
   ]
 ];
-const Command = createLucideIcon("command", __iconNode$9);
-const __iconNode$8 = [
+const Command = createLucideIcon("command", __iconNode$8);
+const __iconNode$7 = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
     "path",
@@ -119,21 +119,15 @@ const __iconNode$8 = [
     }
   ]
 ];
-const House = createLucideIcon("house", __iconNode$8);
-const __iconNode$7 = [
+const House = createLucideIcon("house", __iconNode$7);
+const __iconNode$6 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$7);
-const __iconNode$6 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$6);
-const __iconNode$5 = [
-  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
-  ["path", { d: "M21 12H9", key: "dn1m92" }],
-  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
-];
-const LogOut = createLucideIcon("log-out", __iconNode$5);
+const Info = createLucideIcon("info", __iconNode$6);
+const __iconNode$5 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$5);
 const __iconNode$4 = [
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   [
@@ -708,20 +702,6 @@ function SidebarGroupLabel({
     }
   );
 }
-function SidebarGroupContent({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "sidebar-group-content",
-      "data-sidebar": "group-content",
-      className: cn("w-full text-sm", className),
-      ...props
-    }
-  );
-}
 function SidebarMenu({ className, ...props }) {
   return /* @__PURE__ */ jsx(
     "ul",
@@ -832,13 +812,6 @@ const DATA_SIDEBAR = {
       url: "/employee",
       icon: Users
     }
-  ],
-  navSecondary: [
-    {
-      title: "Logout",
-      url: "#",
-      icon: LogOut
-    }
   ]
 };
 function MainNav({ items }) {
@@ -853,15 +826,6 @@ function MainNav({ items }) {
     ] }) }) }, item.name)) })
   ] });
 }
-function SecondaryNav({
-  items,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(SidebarGroup, { ...props, children: /* @__PURE__ */ jsx(SidebarGroupContent, { children: /* @__PURE__ */ jsx(SidebarMenu, { children: items.map((item) => /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, size: "sm", children: /* @__PURE__ */ jsxs("a", { href: item.url, children: [
-    /* @__PURE__ */ jsx(item.icon, {}),
-    /* @__PURE__ */ jsx("span", { children: item.title })
-  ] }) }) }, item.title)) }) }) });
-}
 function AppSidebar({ ...props }) {
   return /* @__PURE__ */ jsxs(Sidebar, { variant: "inset", ...props, children: [
     /* @__PURE__ */ jsx(SidebarHeader, { children: /* @__PURE__ */ jsx(SidebarMenu, { children: /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { size: "lg", asChild: true, children: /* @__PURE__ */ jsxs("a", { href: "/", children: [
@@ -871,10 +835,7 @@ function AppSidebar({ ...props }) {
         /* @__PURE__ */ jsx("span", { className: "truncate text-xs", children: "ADMIN" })
       ] })
     ] }) }) }) }) }),
-    /* @__PURE__ */ jsxs(SidebarContent, { children: [
-      /* @__PURE__ */ jsx(MainNav, { items: DATA_SIDEBAR.navMain }),
-      /* @__PURE__ */ jsx(SecondaryNav, { items: DATA_SIDEBAR.navSecondary, className: "mt-auto" })
-    ] })
+    /* @__PURE__ */ jsx(SidebarContent, { children: /* @__PURE__ */ jsx(MainNav, { items: DATA_SIDEBAR.navMain }) })
   ] });
 }
 function LayoutSidebar({ children }) {
@@ -890,7 +851,7 @@ const TanStackQueryDevtools = {
   name: "Tanstack Query",
   render: /* @__PURE__ */ jsx(ReactQueryDevtoolsPanel, {})
 };
-const appCss = "/assets/styles-CF6-5oQo.css";
+const appCss = "/assets/styles-C4FQZpdS.css";
 const Toaster = ({ ...props }) => {
   const { theme = "system" } = useTheme();
   return /* @__PURE__ */ jsx(
@@ -963,7 +924,7 @@ function RootDocument({ children }) {
     ] })
   ] });
 }
-const $$splitComponentImporter$1 = () => import("./index-CZCethB9.mjs");
+const $$splitComponentImporter$1 = () => import("./index-C2GTDTAM.mjs");
 const Route$3 = createFileRoute("/")({
   component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
@@ -976,18 +937,6 @@ const Route$2 = createFileRoute("/api/uploadthing")({
     }
   }
 });
-const createSsrRpc = (functionId) => {
-  const url = "/_serverFn/" + functionId;
-  const fn = async (...args) => {
-    const serverFn = await getServerFnById(functionId);
-    return serverFn(...args);
-  };
-  return Object.assign(fn, {
-    url,
-    functionId,
-    [TSS_SERVER_FUNCTION]: true
-  });
-};
 const CreateEmployeeSc = z.object({
   name: z.string().min(1),
   position: z.string().min(1)
@@ -1038,6 +987,139 @@ const getPositions = createServerFn({
   } catch (error) {
     console.error("Error getting unique instansi:", error);
     throw new Error("Failed to get instansi");
+  }
+});
+const exportHaircutHistoryExcel_createServerFn_handler = createSsrRpc("b0898779ff6e8daecf444f00c8ecf351ec699c70ebd58b0d8ce0af0f14fe9c1c");
+const exportHaircutHistoryExcel = createServerFn({
+  method: "GET"
+}).inputValidator(z.object({
+  range: z.array(z.number()).min(2)
+}).optional()).handler(exportHaircutHistoryExcel_createServerFn_handler, async ({
+  data
+}) => {
+  try {
+    const history = await getHaircutHistory({
+      data
+    });
+    if (!history.data || history.data.length === 0) {
+      throw new Error("");
+    }
+    const dates = history.data.map((item) => new Date(item.haircutDate));
+    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+    const monthYearTitle = minDate.getMonth() === maxDate.getMonth() && minDate.getFullYear() === maxDate.getFullYear() ? minDate.toLocaleDateString("id-ID", {
+      month: "long",
+      year: "numeric"
+    }) : `${minDate.toLocaleDateString("id-ID", {
+      month: "long",
+      year: "numeric"
+    })} - ${maxDate.toLocaleDateString("id-ID", {
+      month: "long",
+      year: "numeric"
+    })}`;
+    const groupedByPosition = history.data.reduce((acc, item) => {
+      const position = item.position || "Unknown";
+      if (!acc[position]) {
+        acc[position] = [];
+      }
+      acc[position].push(item);
+      return acc;
+    }, {});
+    const wsData = [];
+    wsData.push([`Haircut History - ${monthYearTitle}`]);
+    wsData.push([]);
+    const positions = Object.keys(groupedByPosition).sort();
+    positions.forEach((position, posIndex) => {
+      const items = groupedByPosition[position];
+      wsData.push([`Instansi: ${position}`]);
+      wsData.push([]);
+      wsData.push(["No", "Name", "Instansi", "Badge", "Date", "Time", "Month & Year"]);
+      items.forEach((item, index) => {
+        const haircutDate = new Date(item.haircutDate);
+        const formattedDate = haircutDate instanceof Date && !Number.isNaN(haircutDate.getTime()) ? haircutDate.toLocaleDateString("id-ID", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }) : "-";
+        wsData.push([index + 1, item.name, item.position, item.badge, formattedDate, item.formattedTime, item.monthYear]);
+      });
+      if (posIndex < positions.length - 1) {
+        wsData.push([]);
+        wsData.push([]);
+      }
+    });
+    const wb = utils.book_new();
+    const ws = utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [
+      {
+        wch: 5
+      },
+      // No
+      {
+        wch: 25
+      },
+      // Name
+      {
+        wch: 20
+      },
+      // Position
+      {
+        wch: 15
+      },
+      // Badge
+      {
+        wch: 30
+      },
+      // Date
+      {
+        wch: 12
+      },
+      // Time
+      {
+        wch: 20
+      }
+      // Month & Year
+    ];
+    if (ws.A1) {
+      ws.A1.s = {
+        font: {
+          bold: true,
+          sz: 14
+        },
+        alignment: {
+          horizontal: "center"
+        }
+      };
+    }
+    ws["!merges"] = [{
+      s: {
+        r: 0,
+        c: 0
+      },
+      e: {
+        r: 0,
+        c: 6
+      }
+    }];
+    utils.book_append_sheet(wb, ws, "Haircut History");
+    const excelBuffer = writeSync(wb, {
+      type: "buffer",
+      bookType: "xlsx"
+    });
+    const headers = getResponseHeaders();
+    headers.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    headers.set("Content-Disposition", `attachment; filename="Haircut_History_${monthYearTitle.replace(/\s/g, "_")}.xlsx"`);
+    setResponseHeaders(headers);
+    return new Response(excelBuffer, {
+      headers: {
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="Haircut_History_${monthYearTitle.replace(/\s/g, "_")}.xlsx"`
+      }
+    });
+  } catch (error) {
+    console.error("Error exporting haircut history:", error);
+    throw new Error("Gagal mengekspor data ke Excel");
   }
 });
 const CreateManyEmployeesSc = z.array(CreateEmployeeSc);
@@ -1108,7 +1190,7 @@ const Route$1 = createFileRoute("/api/employee")({
     }
   }
 });
-const $$splitComponentImporter = () => import("./employee-DZhLwC53.mjs");
+const $$splitComponentImporter = () => import("./employee-59iZ3-0q.mjs");
 const Route = createFileRoute("/(app)/employee")({
   component: lazyRouteComponent($$splitComponentImporter, "component")
 });
@@ -1156,15 +1238,15 @@ const router = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   getRouter
 }, Symbol.toStringTag, { value: "Module" }));
-const routerBkvds5O7 = /* @__PURE__ */ Object.freeze({
+const routerD5kaA7la = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   B: Button,
   C: CreateEmployeeSc,
   S: Separator,
-  a: createSsrRpc,
+  a: getPositions,
   b: buttonVariants,
   c: createEmployee,
-  d: getPositions,
+  e: exportHaircutHistoryExcel,
   g: getEmployees,
   r: router
 });
@@ -1176,9 +1258,9 @@ export {
   createEmployee as a,
   buttonVariants as b,
   createLucideIcon as c,
-  createSsrRpc as d,
-  ChevronRight as e,
+  ChevronRight as d,
+  exportHaircutHistoryExcel as e,
   getPositions as f,
   getEmployees as g,
-  routerBkvds5O7 as r
+  routerD5kaA7la as r
 };

@@ -1,10 +1,9 @@
 import { a as createServerRpc, c as createServerFn } from "./server.mjs";
-import { eq, sql, asc, desc, and, gte, lt } from "drizzle-orm";
+import { eq, gte, lte, sql, and, asc, desc, lt } from "drizzle-orm";
 import QRCode from "qrcode";
 import sharp from "sharp";
 import z from "zod";
-import { d as db, e as employees, h as haircutHistory } from "./index-Dmu0Fhot.mjs";
-import { u as utapi } from "./config-BHLBq3j-.mjs";
+import { u as utapi, d as db, e as employees, h as haircutHistory } from "./config-CJ6AisJq.mjs";
 import "node:async_hooks";
 import "react/jsx-runtime";
 import "@tanstack/react-router/ssr/server";
@@ -207,8 +206,26 @@ const getHaircutHistory_createServerFn_handler = createServerRpc("8821ae31bdbbd5
 });
 const getHaircutHistory = createServerFn({
   method: "GET"
-}).handler(getHaircutHistory_createServerFn_handler, async () => {
+}).inputValidator(z.object({
+  range: z.array(z.number()).min(2)
+}).optional()).handler(getHaircutHistory_createServerFn_handler, async ({
+  data
+}) => {
+  const {
+    range = []
+  } = data || {};
   try {
+    const filters = [];
+    let start;
+    let end;
+    if (range && range.length >= 2) {
+      const [startEpoch, endEpoch] = range;
+      start = new Date(startEpoch);
+      end = new Date(endEpoch);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      filters.push(gte(haircutHistory.haircutDate, start), lte(haircutHistory.haircutDate, end));
+    }
     const records = await db.select({
       id: haircutHistory.id,
       employeeId: haircutHistory.employeeId,
@@ -217,7 +234,7 @@ const getHaircutHistory = createServerFn({
       employeeName: employees.name,
       employeeBadge: employees.badge,
       employeePosition: employees.position
-    }).from(haircutHistory).innerJoin(employees, sql`${haircutHistory.employeeId} = ${employees.id}`).orderBy(asc(employees.position), desc(haircutHistory.haircutDate));
+    }).from(haircutHistory).innerJoin(employees, sql`${haircutHistory.employeeId} = ${employees.id}`).where(and(...filters)).orderBy(asc(employees.position), desc(haircutHistory.haircutDate));
     const formattedRecords = records.map((record) => {
       const haircutDate = new Date(record.haircutDate);
       return {

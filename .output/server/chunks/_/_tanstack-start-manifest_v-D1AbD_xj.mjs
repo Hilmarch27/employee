@@ -1,4 +1,0 @@
-const tsrStartManifest = () => ({ "routes": { "__root__": { "filePath": "C:/Users/Hype G12/Desktop/dev/user-management/src/routes/__root.tsx", "children": ["/", "/(app)/employee", "/api/employee", "/api/uploadthing"], "preloads": ["/assets/main-DL6_6SDJ.js"], "assets": [] }, "/": { "filePath": "C:/Users/Hype G12/Desktop/dev/user-management/src/routes/index.tsx", "assets": [], "preloads": ["/assets/index-DErUfXJb.js", "/assets/use-client-table-BMPnLZel.js", "/assets/plugin-Cep3T2hQ.js"] }, "/(app)/employee": { "filePath": "C:/Users/Hype G12/Desktop/dev/user-management/src/routes/(app)/employee.tsx", "assets": [], "preloads": ["/assets/employee-ClkBz8dT.js", "/assets/use-client-table-BMPnLZel.js", "/assets/plugin-Cep3T2hQ.js"] } }, "clientEntry": "/assets/main-DL6_6SDJ.js" });
-export {
-  tsrStartManifest
-};

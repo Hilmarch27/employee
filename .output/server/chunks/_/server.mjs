@@ -3146,12 +3146,22 @@ function getH3Event() {
   }
   return event.h3Event;
 }
+function setResponseHeaders(headers) {
+  const event = getH3Event();
+  for (const [name, value] of Object.entries(headers)) {
+    event.res.headers.set(name, value);
+  }
+}
+function getResponseHeaders() {
+  const event = getH3Event();
+  return event.res.headers;
+}
 function getResponse() {
   const event = getH3Event();
   return event._res;
 }
 async function getStartManifest() {
-  const { tsrStartManifest } = await import("./_tanstack-start-manifest_v-D1AbD_xj.mjs");
+  const { tsrStartManifest } = await import("./_tanstack-start-manifest_v-D4qu8BOP.mjs");
   const startManifest = tsrStartManifest();
   const rootRoute = startManifest.routes[rootRouteId] = startManifest.routes[rootRouteId] || {};
   rootRoute.assets = rootRoute.assets || [];
@@ -3185,22 +3195,25 @@ async function getStartManifest() {
 }
 const manifest = { "336f879870c55ee2129c779d5f5975293e870c93730cc9c3d4268eaa589130d0": {
   functionName: "createBarcode_createServerFn_handler",
-  importer: () => import("./barcode-fn-DfwgyVGG.mjs")
+  importer: () => import("./barcode-fn-vdImr87m.mjs")
 }, "35796e2abc170634d9b6ae992959d81695571801047a6b0e08066f48a74c3504": {
   functionName: "scanBarcode_createServerFn_handler",
-  importer: () => import("./barcode-fn-DfwgyVGG.mjs")
+  importer: () => import("./barcode-fn-vdImr87m.mjs")
 }, "8821ae31bdbbd53d8696738736d685dd361d3ae3999ef67be7fb06eddb89e15e": {
   functionName: "getHaircutHistory_createServerFn_handler",
-  importer: () => import("./barcode-fn-DfwgyVGG.mjs")
+  importer: () => import("./barcode-fn-vdImr87m.mjs")
 }, "be412f3b3e6ca295950e4fdcee9704a5fe5550e74a70796c87282f6a2167eadb": {
   functionName: "createEmployee_createServerFn_handler",
-  importer: () => import("./employee-fn-BAaA08up.mjs")
+  importer: () => import("./employee-fn-CG9_c-kh.mjs")
 }, "d995f78514bca95f9b64006a76df31a80a116f32dc69ce9fdb5fdd431a92895c": {
   functionName: "getEmployees_createServerFn_handler",
-  importer: () => import("./employee-fn-BAaA08up.mjs")
+  importer: () => import("./employee-fn-CG9_c-kh.mjs")
 }, "a9bd7b20fa2edafd59d5d28102189a72aff3c1be54e7e3223f98f733cf4e902a": {
   functionName: "getPositions_createServerFn_handler",
-  importer: () => import("./employee-fn-BAaA08up.mjs")
+  importer: () => import("./employee-fn-CG9_c-kh.mjs")
+}, "b0898779ff6e8daecf444f00c8ecf351ec699c70ebd58b0d8ce0af0f14fe9c1c": {
+  functionName: "exportHaircutHistoryExcel_createServerFn_handler",
+  importer: () => import("./employee-fn-CG9_c-kh.mjs")
 } };
 async function getServerFnById(id) {
   const serverFnInfo = manifest[id];
@@ -3477,7 +3490,7 @@ function createStartHandler(cb) {
   let routerEntry = null;
   const getEntries = async () => {
     if (routerEntry === null) {
-      routerEntry = await import("./router-Bkvds5O7.mjs").then(function(n) {
+      routerEntry = await import("./router-D5kaA7la.mjs").then(function(n) {
         return n.r;
       }).then((n) => n.r);
     }
@@ -3821,9 +3834,11 @@ const server = createServerEntry({ fetch });
 export {
   TSS_SERVER_FUNCTION as T,
   createServerRpc as a,
+  getServerFnById as b,
   createServerFn as c,
   createServerEntry,
   server as default,
-  getServerFnById as g,
-  json as j
+  getResponseHeaders as g,
+  json as j,
+  setResponseHeaders as s
 };

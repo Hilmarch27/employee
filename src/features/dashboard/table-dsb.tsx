@@ -1,8 +1,9 @@
+import { useMutation } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Briefcase, Calendar, FileSpreadsheet, Text } from 'lucide-react';
 import { useMemo } from 'react';
 import { toast } from 'sonner';
-import { utils, writeFile } from 'xlsx';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
@@ -13,6 +14,7 @@ import {
 	includesTrimmed,
 	useClientTable,
 } from '@/hooks/use-client-table';
+import { exportHaircutHistoryExcel } from '@/server-function/employee-fn';
 
 function COLUMNS_HAIRCUT_HISTORY(): ColumnDef<HaircutHistory>[] {
 	return [
@@ -121,54 +123,30 @@ function COLUMNS_HAIRCUT_HISTORY(): ColumnDef<HaircutHistory>[] {
 }
 
 export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
-	const handleExportExcel = async () => {
-		try {
-			// Format data untuk Excel
-			const excelData = data.map((item, index) => ({
-				No: index + 1,
-				Name: item.name,
-				Position: item.position,
-				Badge: item.badge,
-				Date:
-					item.haircutDate instanceof Date &&
-					!Number.isNaN(item.haircutDate.getTime())
-						? item.haircutDate.toLocaleDateString('id-ID', {
-								weekday: 'long',
-								day: 'numeric',
-								month: 'long',
-								year: 'numeric',
-							})
-						: '-',
-				Time: item.formattedTime,
-				'Month & Year': item.monthYear,
-			}));
+	const exportExcelFn = useServerFn(exportHaircutHistoryExcel);
 
-			// Buat worksheet
-			const worksheet = utils.json_to_sheet(excelData);
+	const { mutateAsync } = useMutation({
+		mutationFn: async () => {
+			const response = await exportExcelFn({});
+			const blob = await response.blob();
+			return blob;
+		},
+		onSuccess: (blob) => {
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `haircut-history-${new Date().toISOString()}.xlsx`;
+			a.click();
+			window.URL.revokeObjectURL(url);
+		},
+	});
 
-			// Atur lebar kolom
-			const columnWidths = [
-				{ wch: 5 }, // No
-				{ wch: 20 }, // Name
-				{ wch: 20 }, // Position
-				{ wch: 10 }, // Badge
-				{ wch: 30 }, // Date
-				{ wch: 15 }, // Time
-				{ wch: 15 }, // Month & Year
-			];
-			worksheet['!cols'] = columnWidths;
-
-			// Buat workbook
-			const workbook = utils.book_new();
-			utils.book_append_sheet(workbook, worksheet, 'Haircut History');
-
-			// Export file
-			const fileName = `haircut_history_${new Date().toISOString().split('T')[0]}.xlsx`;
-			writeFile(workbook, fileName);
-		} catch (error) {
-			console.error('Error exporting to Excel:', error);
-			toast.error('Failed to export data');
-		}
+	const handleExportExcel = () => {
+		toast.promise(mutateAsync(), {
+			loading: 'Exporting Excel...',
+			success: 'Excel exported successfully',
+			error: 'Failed to export Excel',
+		});
 	};
 
 	const columns = useMemo(() => {

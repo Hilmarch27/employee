@@ -1,66 +1,9 @@
-import { jsxs, jsx } from "react/jsx-runtime";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { u as useServerFn, g as getHaircutHistory, s as scanBarcode, F as Field, a as FieldLabel, I as Input, b as FieldError, c as useClientTable, D as DataTable, d as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, e as dateRange, C as Calendar, f as DataTableColumnHeader } from "./use-client-table-VDuBhd27.mjs";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+import { c as createServerFn, T as TSS_SERVER_FUNCTION, b as getServerFnById } from "./server.mjs";
+import { gte, lte, sql, and, asc, desc, eq, lt } from "drizzle-orm";
+import QRCode from "qrcode";
+import sharp from "sharp";
 import z from "zod";
-import { c as createLucideIcon, B as Button } from "./router-Bkvds5O7.mjs";
-import { c as cn } from "./index-Dmu0Fhot.mjs";
-import { useMemo } from "react";
-import "class-variance-authority";
-import "@radix-ui/react-label";
-import "@tanstack/react-table";
-import "@radix-ui/react-select";
-import "@tanstack/react-router";
-import "@radix-ui/react-slot";
-import "cmdk";
-import "@radix-ui/react-popover";
-import "drizzle-orm";
-import "qrcode";
-import "sharp";
-import "./config-BHLBq3j-.mjs";
-import "uploadthing/server";
-import "./server.mjs";
-import "node:async_hooks";
-import "@tanstack/react-router/ssr/server";
-import "react-day-picker";
-import "@radix-ui/react-dropdown-menu";
-import "@tanstack/react-router-ssr-query";
-import "@tanstack/react-devtools";
-import "@tanstack/react-router-devtools";
-import "@radix-ui/react-separator";
-import "@radix-ui/react-dialog";
-import "@radix-ui/react-tooltip";
-import "@tanstack/react-query-devtools";
-import "next-themes";
-import "@libsql/client";
-import "dotenv";
-import "drizzle-orm/libsql";
-import "@t3-oss/env-core";
-import "drizzle-orm/sqlite-core";
-import "clsx";
-import "nanoid";
-import "tailwind-merge";
-const __iconNode$1 = [
-  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
-  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
-];
-const Briefcase = createLucideIcon("briefcase", __iconNode$1);
-const __iconNode = [
-  [
-    "path",
-    {
-      d: "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z",
-      key: "1oefj6"
-    }
-  ],
-  ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5", key: "wfsgrz" }],
-  ["path", { d: "M8 13h2", key: "yr2amv" }],
-  ["path", { d: "M14 13h2", key: "un5t4a" }],
-  ["path", { d: "M8 17h2", key: "2yhykz" }],
-  ["path", { d: "M14 17h2", key: "10kma7" }]
-];
-const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode);
+import { h as haircutHistory, d as db, e as employees, u as utapi } from "./config-CJ6AisJq.mjs";
 var XLSX = {};
 XLSX.version = "0.18.5";
 var current_ansi = 1252;
@@ -13216,8 +13159,8 @@ function check_wb_names(N, S, codes) {
     check_ws_name(n);
     for (var j = 0; j < i; ++j) if (n == N[j]) throw new Error("Duplicate Sheet Name: " + n);
     if (codes) {
-      var cn2 = S && S[i] && S[i].CodeName || n;
-      if (cn2.charCodeAt(0) == 95 && cn2.length > 22) throw new Error("Bad Code Name: Worksheet" + cn2);
+      var cn = S && S[i] && S[i].CodeName || n;
+      if (cn.charCodeAt(0) == 95 && cn.length > 22) throw new Error("Bad Code Name: Worksheet" + cn);
     }
   });
 }
@@ -19915,26 +19858,6 @@ function writeSync(wb, opts) {
       throw new Error("Unrecognized bookType |" + o.bookType + "|");
   }
 }
-function resolve_book_type(o) {
-  if (o.bookType) return;
-  var _BT = {
-    "xls": "biff8",
-    "htm": "html",
-    "slk": "sylk",
-    "socialcalc": "eth",
-    "Sh33tJS": "WTF"
-  };
-  var ext = o.file.slice(o.file.lastIndexOf(".")).toLowerCase();
-  if (ext.match(/^\.[a-z]+$/)) o.bookType = ext.slice(1);
-  o.bookType = _BT[o.bookType] || o.bookType;
-}
-function writeFileSync(wb, filename, opts) {
-  var o = {};
-  o.type = "file";
-  o.file = filename;
-  resolve_book_type(o);
-  return writeSync(wb, o);
-}
 function make_json_row(sheet, r, R, cols, header, hdr, dense, o) {
   var rr = encode_row(R);
   var defval = o.defval, raw = o.raw || !Object.prototype.hasOwnProperty.call(o, "raw");
@@ -20356,283 +20279,265 @@ var utils = {
     SHEET_VERY_HIDDEN: 2
   }
 };
-function Card({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card",
-      className: cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function CardHeader({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card-header",
-      className: cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function CardTitle({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card-title",
-      className: cn("leading-none font-semibold", className),
-      ...props
-    }
-  );
-}
-function CardContent({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card-content",
-      className: cn("px-6", className),
-      ...props
-    }
-  );
-}
-function ScanDsb() {
-  const scanBarcodeFn = useServerFn(scanBarcode);
-  const queryClient = useQueryClient();
-  const form = useForm({
-    defaultValues: {
-      id: ""
-    },
-    validators: {
-      onSubmit: z.object({
-        id: z.string().min(1)
-      })
-    },
-    onSubmit: async ({ value }) => {
-      toast.promise(mutateAsync({ data: value }), {
-        loading: "Scanning..."
-      });
-    }
+const createSsrRpc = (functionId) => {
+  const url = "/_serverFn/" + functionId;
+  const fn = async (...args) => {
+    const serverFn = await getServerFnById(functionId);
+    return serverFn(...args);
+  };
+  return Object.assign(fn, {
+    url,
+    functionId,
+    [TSS_SERVER_FUNCTION]: true
   });
-  const { mutateAsync } = useMutation({
-    mutationFn: scanBarcodeFn,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["haircut-history"] });
-      toast.success(data.message);
-      form.reset();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    }
-  });
-  return /* @__PURE__ */ jsxs(Card, { children: [
-    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { children: "Scan Barcode" }) }),
-    /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsxs(
-      "form",
-      {
-        onSubmit: (e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        },
-        className: "flex gap-2 items-center w-full",
-        children: [
-          /* @__PURE__ */ jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsx(form.Field, { name: "id", children: (field) => {
-            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-            return /* @__PURE__ */ jsxs(Field, { "data-invalid": isInvalid, children: [
-              /* @__PURE__ */ jsx(FieldLabel, { htmlFor: field.name, children: "Instansi" }),
-              /* @__PURE__ */ jsx(
-                Input,
-                {
-                  value: field.state.value,
-                  onChange: (e) => {
-                    field.handleChange(e.target.value);
-                  },
-                  autoFocus: true,
-                  placeholder: "Scan ID Barcode..."
-                }
-              ),
-              isInvalid && /* @__PURE__ */ jsx(FieldError, { errors: field.state.meta.errors })
-            ] });
-          } }) }),
-          /* @__PURE__ */ jsx(form.Subscribe, { selector: (state) => state.isSubmitting, children: (isSubmitting) => /* @__PURE__ */ jsx(Button, { type: "submit", disabled: isSubmitting, className: "mt-7.5", children: isSubmitting ? "Scanning..." : "Scan" }) })
-        ]
+};
+async function genQRCode(options) {
+  const {
+    id,
+    name
+  } = options;
+  try {
+    const qrBuffer = await QRCode.toBuffer(id, {
+      width: 250,
+      margin: 2,
+      errorCorrectionLevel: "M",
+      type: "png",
+      color: {
+        dark: "#000000",
+        light: "#FFFFFF"
       }
-    ) })
-  ] });
-}
-function COLUMNS_HAIRCUT_HISTORY() {
-  return [
-    {
-      id: "no",
-      accessorKey: "no",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "No" }),
-      cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.index + 1 }),
-      minSize: 40,
-      maxSize: 40,
-      enableSorting: false,
-      enablePinning: false,
-      enableHiding: false
-    },
-    {
-      id: "name",
-      accessorKey: "name",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Name" }),
-      cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.getValue("name") }),
-      meta: {
-        label: "Name",
-        placeholder: "Search Name...",
-        variant: "text",
-        icon: TextAlignStart
-      },
-      filterFn: includesTrimmed,
-      enableColumnFilter: true
-    },
-    {
-      id: "position",
-      accessorKey: "position",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Instansi" }),
-      cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.getValue("position") }),
-      meta: {
-        label: "Instansi",
-        placeholder: "Search instansi...",
-        variant: "combobox",
-        icon: Briefcase
-      },
-      enableColumnFilter: true
-    },
-    {
-      accessorKey: "badge",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Badge" }),
-      cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.getValue("badge") })
-    },
-    {
-      id: "haircutDate",
-      accessorKey: "haircutDate",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Date" }),
-      cell: ({ row }) => {
-        const haircutDate = row.getValue("haircutDate");
-        if (haircutDate instanceof Date && !Number.isNaN(haircutDate.getTime())) {
-          return /* @__PURE__ */ jsx("div", { children: haircutDate.toLocaleDateString("id-ID", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-          }) });
+    });
+    const fontSize = 18;
+    const padding = 20;
+    const textHeight = 30;
+    const canvasWidth = 250 + padding * 2;
+    const canvasHeight = 250 + padding * 2 + textHeight * 2;
+    const svgTop = `
+			<svg width="${canvasWidth}" height="${textHeight}">
+				<text 
+					x="50%" 
+					y="50%" 
+					text-anchor="middle" 
+					dominant-baseline="middle"
+					font-family="Arial, sans-serif" 
+					font-size="${fontSize}" 
+					font-weight="bold"
+					fill="#000000"
+				>${name}</text>
+			</svg>
+		`;
+    const svgBottom = `
+			<svg width="${canvasWidth}" height="${textHeight}">
+				<text 
+					x="50%" 
+					y="50%" 
+					text-anchor="middle" 
+					dominant-baseline="middle"
+					font-family="Arial, sans-serif" 
+					font-size="${fontSize - 2}" 
+					fill="#666666"
+				>${id}</text>
+			</svg>
+		`;
+    const finalImage = await sharp({
+      create: {
+        width: canvasWidth,
+        height: canvasHeight,
+        channels: 4,
+        background: {
+          r: 255,
+          g: 255,
+          b: 255,
+          alpha: 1
         }
-        return /* @__PURE__ */ jsx("div", { children: "-" });
+      }
+    }).composite([
+      // Text atas
+      {
+        input: Buffer.from(svgTop),
+        top: padding,
+        left: 0
       },
-      meta: {
-        label: "Haircut Date",
-        placeholder: "Search Haircut Date...",
-        variant: "dateRange",
-        icon: Calendar
+      // QR Code
+      {
+        input: qrBuffer,
+        top: padding + textHeight,
+        left: padding
       },
-      filterFn: dateRange,
-      enableColumnFilter: true,
-      minSize: 200,
-      maxSize: 200
-    },
-    {
-      accessorKey: "formattedTime",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Time" }),
-      cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.getValue("formattedTime") })
-    },
-    {
-      accessorKey: "monthYear",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Month & Year" }),
-      cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.getValue("monthYear") })
-    }
-  ];
+      // Text bawah
+      {
+        input: Buffer.from(svgBottom),
+        top: padding + textHeight + 250 + 10,
+        left: 0
+      }
+    ]).png().toBuffer();
+    return finalImage;
+  } catch (error) {
+    throw new Error(`Failed to generate QR code: ${error}`);
+  }
 }
-function DataTableHaircut({ data }) {
-  const handleExportExcel = async () => {
-    try {
-      const excelData = data.map((item, index) => ({
-        No: index + 1,
-        Name: item.name,
-        Position: item.position,
-        Badge: item.badge,
-        Date: item.haircutDate instanceof Date && !Number.isNaN(item.haircutDate.getTime()) ? item.haircutDate.toLocaleDateString("id-ID", {
-          weekday: "long",
-          day: "numeric",
+const CreateBarcodeSc = z.object({
+  items: z.array(z.object({
+    name: z.string().min(1),
+    id: z.string().min(1)
+  })).min(1)
+});
+const createBarcode_createServerFn_handler = createSsrRpc("336f879870c55ee2129c779d5f5975293e870c93730cc9c3d4268eaa589130d0");
+const createBarcode = createServerFn({
+  method: "POST"
+}).inputValidator(CreateBarcodeSc).handler(createBarcode_createServerFn_handler, async ({
+  data
+}) => {
+  try {
+    const results = await Promise.all(data.items.map(async (item) => {
+      const qrCode = await genQRCode({
+        name: item.name,
+        id: item.id
+      });
+      const file = new File([new Uint8Array(qrCode)], `${item.id}.png`, {
+        type: "image/png"
+      });
+      const res = await utapi.uploadFiles(file);
+      if (!res.data) {
+        throw new Error("Failed to upload Barcode");
+      }
+      await db.update(employees).set({
+        barcodeUrl: res.data.ufsUrl
+      }).where(eq(employees.id, item.id));
+      return {
+        id: item.id,
+        url: res.data.ufsUrl,
+        name: item.name
+      };
+    }));
+    return {
+      count: results.length,
+      results
+    };
+  } catch (error) {
+    console.error("Error creating barcode:", error);
+    throw new Error("Failed to create barcode");
+  }
+});
+const scanBarcode_createServerFn_handler = createSsrRpc("35796e2abc170634d9b6ae992959d81695571801047a6b0e08066f48a74c3504");
+const scanBarcode = createServerFn({
+  method: "POST"
+}).inputValidator(z.object({
+  id: z.string().min(1)
+})).handler(scanBarcode_createServerFn_handler, async ({
+  data
+}) => {
+  try {
+    const {
+      id
+    } = data;
+    const employee = await db.query.employees.findFirst({
+      where: eq(employees.id, id)
+    });
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
+    const now = /* @__PURE__ */ new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const monthStartTimestamp = Math.floor(currentMonthStart.getTime() / 1e3);
+    const nextMonthTimestamp = Math.floor(nextMonthStart.getTime() / 1e3);
+    const existingScan = await db.query.haircutHistory.findFirst({
+      where: and(eq(haircutHistory.employeeId, id), gte(haircutHistory.haircutDate, new Date(monthStartTimestamp * 1e3)), lt(haircutHistory.haircutDate, new Date(nextMonthTimestamp * 1e3)))
+    });
+    if (existingScan) {
+      const scanDate = existingScan.haircutDate.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+      throw new Error(`Anda sudah cukur di bulan ini pada tanggal ${scanDate}`);
+    }
+    const [newRecord] = await db.insert(haircutHistory).values({
+      employeeId: id,
+      haircutDate: /* @__PURE__ */ new Date()
+    }).returning();
+    return {
+      message: "Haircut berhasil dicatat",
+      result: {
+        id: newRecord.id,
+        employeeName: employee.name,
+        employeeBadge: employee.badge,
+        haircutDate: newRecord.haircutDate
+      }
+    };
+  } catch (error) {
+    console.error("Error scanning barcode:", error);
+    throw new Error(error.message);
+  }
+});
+const getHaircutHistory_createServerFn_handler = createSsrRpc("8821ae31bdbbd53d8696738736d685dd361d3ae3999ef67be7fb06eddb89e15e");
+const getHaircutHistory = createServerFn({
+  method: "GET"
+}).inputValidator(z.object({
+  range: z.array(z.number()).min(2)
+}).optional()).handler(getHaircutHistory_createServerFn_handler, async ({
+  data
+}) => {
+  const {
+    range = []
+  } = data || {};
+  try {
+    const filters = [];
+    let start;
+    let end;
+    if (range && range.length >= 2) {
+      const [startEpoch, endEpoch] = range;
+      start = new Date(startEpoch);
+      end = new Date(endEpoch);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      filters.push(gte(haircutHistory.haircutDate, start), lte(haircutHistory.haircutDate, end));
+    }
+    const records = await db.select({
+      id: haircutHistory.id,
+      employeeId: haircutHistory.employeeId,
+      haircutDate: haircutHistory.haircutDate,
+      createdAt: haircutHistory.createdAt,
+      employeeName: employees.name,
+      employeeBadge: employees.badge,
+      employeePosition: employees.position
+    }).from(haircutHistory).innerJoin(employees, sql`${haircutHistory.employeeId} = ${employees.id}`).where(and(...filters)).orderBy(asc(employees.position), desc(haircutHistory.haircutDate));
+    const formattedRecords = records.map((record) => {
+      const haircutDate = new Date(record.haircutDate);
+      return {
+        id: record.id,
+        employeeId: record.employeeId,
+        name: record.employeeName,
+        badge: record.employeeBadge,
+        position: record.employeePosition,
+        haircutDate: record.haircutDate,
+        formattedTime: haircutDate.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
+        }),
+        monthYear: haircutDate.toLocaleDateString("id-ID", {
           month: "long",
           year: "numeric"
-        }) : "-",
-        Time: item.formattedTime,
-        "Month & Year": item.monthYear
-      }));
-      const worksheet = utils.json_to_sheet(excelData);
-      const columnWidths = [
-        { wch: 5 },
-        // No
-        { wch: 20 },
-        // Name
-        { wch: 20 },
-        // Position
-        { wch: 10 },
-        // Badge
-        { wch: 30 },
-        // Date
-        { wch: 15 },
-        // Time
-        { wch: 15 }
-        // Month & Year
-      ];
-      worksheet["!cols"] = columnWidths;
-      const workbook = utils.book_new();
-      utils.book_append_sheet(workbook, worksheet, "Haircut History");
-      const fileName = `haircut_history_${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}.xlsx`;
-      writeFileSync(workbook, fileName);
-    } catch (error) {
-      console.error("Error exporting to Excel:", error);
-      toast.error("Failed to export data");
-    }
-  };
-  const columns = useMemo(() => {
-    return COLUMNS_HAIRCUT_HISTORY();
-  }, []);
-  const { table } = useClientTable({
-    defaultColumn: {
-      minSize: 160
-    },
-    data,
-    columns,
-    getRowId: (originalRow) => originalRow.id
-  });
-  return /* @__PURE__ */ jsx("div", { className: "w-full", children: /* @__PURE__ */ jsx(DataTable, { className: "py-3 mt-10", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: /* @__PURE__ */ jsxs(
-    Button,
-    {
-      variant: "outline",
-      size: "sm",
-      className: "h-8",
-      onClick: handleExportExcel,
-      children: [
-        "Export Excel",
-        /* @__PURE__ */ jsx(FileSpreadsheet, { className: "ml-2 h-4 w-4" })
-      ]
-    }
-  ) }) }) });
-}
-function App() {
-  const getData = useServerFn(getHaircutHistory);
-  const {
-    data: history,
-    isLoading
-  } = useQuery({
-    queryKey: ["haircut-history"],
-    queryFn: () => getData()
-  });
-  return /* @__PURE__ */ jsxs("div", { className: "flex flex-col justify-between pe-5", children: [
-    /* @__PURE__ */ jsx(ScanDsb, {}),
-    isLoading ? /* @__PURE__ */ jsx("div", { children: "Loading..." }) : /* @__PURE__ */ jsx(DataTableHaircut, { data: history?.data || [] })
-  ] });
-}
+        }),
+        createdAt: record.createdAt
+      };
+    });
+    return {
+      data: formattedRecords,
+      total: formattedRecords.length
+    };
+  } catch (error) {
+    console.error("Error fetching haircut history:", error);
+    throw new Error("Gagal mengambil data history");
+  }
+});
 export {
-  App as component
+  createBarcode as a,
+  createSsrRpc as c,
+  getHaircutHistory as g,
+  scanBarcode as s,
+  utils as u,
+  writeSync as w
 };
