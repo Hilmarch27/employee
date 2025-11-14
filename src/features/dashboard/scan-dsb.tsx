@@ -43,7 +43,7 @@ export default function ScanDsb() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Scan DSB</CardTitle>
+				<CardTitle>Scan Barcode</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<form
@@ -60,12 +60,13 @@ export default function ScanDsb() {
 									field.state.meta.isTouched && !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>Position</FieldLabel>
+										<FieldLabel htmlFor={field.name}>Instansi</FieldLabel>
 										<Input
 											value={field.state.value}
 											onChange={(e) => {
 												field.handleChange(e.target.value);
 											}}
+											autoFocus
 											placeholder="Scan ID Barcode..."
 										/>
 										{isInvalid && (

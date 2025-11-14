@@ -1,5 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
-import { useServerFn } from '@tanstack/react-start';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Briefcase, Calendar, FileSpreadsheet, Text } from 'lucide-react';
 import { useMemo } from 'react';
@@ -9,19 +7,14 @@ import { DataTable } from '@/components/data-table/data-table';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { Button } from '@/components/ui/button';
-import type { ComboboxItem } from '@/components/ui/combobox';
 import type { HaircutHistory } from '@/db/schema';
 import {
 	dateRange,
 	includesTrimmed,
 	useClientTable,
 } from '@/hooks/use-client-table';
-// import { exportHaircutHistoryExcel } from '@/server-function/barcode-fn';
-import { getPositions } from '@/server-function/employee-fn';
 
-function COLUMNS_HAIRCUT_HISTORY(
-	positionItems: ComboboxItem[],
-): ColumnDef<HaircutHistory>[] {
+function COLUMNS_HAIRCUT_HISTORY(): ColumnDef<HaircutHistory>[] {
 	return [
 		{
 			id: 'no',
@@ -56,14 +49,13 @@ function COLUMNS_HAIRCUT_HISTORY(
 			id: 'position',
 			accessorKey: 'position',
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Position" />
+				<DataTableColumnHeader column={column} title="Instansi" />
 			),
 			cell: ({ row }) => <div>{row.getValue('position')}</div>,
 			meta: {
-				label: 'Position',
-				placeholder: 'Search Position...',
+				label: 'Instansi',
+				placeholder: 'Search instansi...',
 				variant: 'combobox',
-				options: positionItems,
 				icon: Briefcase,
 			},
 			enableColumnFilter: true,
@@ -129,8 +121,6 @@ function COLUMNS_HAIRCUT_HISTORY(
 }
 
 export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
-	const getData = useServerFn(getPositions);
-
 	const handleExportExcel = async () => {
 		try {
 			// Format data untuk Excel
@@ -181,16 +171,9 @@ export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
 		}
 	};
 
-	const { data: positions = [] } = useQuery({
-		queryKey: ['positions'],
-		queryFn: () => getData(),
-		structuralSharing: true,
-		staleTime: 5 * 60 * 1000,
-	});
-
 	const columns = useMemo(() => {
-		return COLUMNS_HAIRCUT_HISTORY(positions || []);
-	}, [positions]);
+		return COLUMNS_HAIRCUT_HISTORY();
+	}, []);
 
 	const { table } = useClientTable({
 		defaultColumn: {

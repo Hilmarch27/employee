@@ -44,7 +44,6 @@ export default function Combobox({
 	disabled = false,
 }: ComboboxProps) {
 	const [open, setOpen] = React.useState(false);
-
 	const selectedItem = items.find((item) => item.value === value);
 
 	return (
@@ -78,9 +77,9 @@ export default function Combobox({
 			</PopoverTrigger>
 			<PopoverContent
 				className="w-[--radix-popover-trigger-width] p-0"
-				side='bottom'
+				side="bottom"
 			>
-				<Command className='h-52'>
+				<Command className="h-52">
 					<CommandInput placeholder={searchPlaceholder} />
 					<CommandList>
 						<CommandEmpty>{emptyText}</CommandEmpty>
@@ -89,6 +88,7 @@ export default function Combobox({
 								<CommandItem
 									key={item.value}
 									value={item.value}
+									keywords={[item.label, item.value]}
 									onSelect={(currentValue) => {
 										onValueChange?.(currentValue === value ? '' : currentValue);
 										setOpen(false);

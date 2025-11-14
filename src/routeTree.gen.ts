@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as ApiEmployeeRouteImport } from './routes/api/employee'
 import { Route as appEmployeeRouteImport } from './routes/(app)/employee'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
+  id: '/api/uploadthing',
+  path: '/api/uploadthing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEmployeeRoute = ApiEmployeeRouteImport.update({
@@ -33,30 +39,39 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/employee': typeof appEmployeeRoute
   '/api/employee': typeof ApiEmployeeRoute
+  '/api/uploadthing': typeof ApiUploadthingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/employee': typeof appEmployeeRoute
   '/api/employee': typeof ApiEmployeeRoute
+  '/api/uploadthing': typeof ApiUploadthingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(app)/employee': typeof appEmployeeRoute
   '/api/employee': typeof ApiEmployeeRoute
+  '/api/uploadthing': typeof ApiUploadthingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/employee' | '/api/employee'
+  fullPaths: '/' | '/employee' | '/api/employee' | '/api/uploadthing'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/employee' | '/api/employee'
-  id: '__root__' | '/' | '/(app)/employee' | '/api/employee'
+  to: '/' | '/employee' | '/api/employee' | '/api/uploadthing'
+  id:
+    | '__root__'
+    | '/'
+    | '/(app)/employee'
+    | '/api/employee'
+    | '/api/uploadthing'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   appEmployeeRoute: typeof appEmployeeRoute
   ApiEmployeeRoute: typeof ApiEmployeeRoute
+  ApiUploadthingRoute: typeof ApiUploadthingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +81,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/uploadthing': {
+      id: '/api/uploadthing'
+      path: '/api/uploadthing'
+      fullPath: '/api/uploadthing'
+      preLoaderRoute: typeof ApiUploadthingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/employee': {
@@ -89,6 +111,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   appEmployeeRoute: appEmployeeRoute,
   ApiEmployeeRoute: ApiEmployeeRoute,
+  ApiUploadthingRoute: ApiUploadthingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

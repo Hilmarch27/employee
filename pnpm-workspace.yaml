@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - canvas
+  - esbuild
+  - msgpackr-extract
+  - sharp

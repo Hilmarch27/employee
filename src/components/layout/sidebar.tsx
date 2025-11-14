@@ -1,10 +1,8 @@
 import { useLocation } from '@tanstack/react-router';
-import Cookies from 'js-cookie';
 import type { LucideIcon } from 'lucide-react';
 import { Command, Home, LogOut, Users } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import {
-	SIDEBAR_COOKIE_NAME,
 	Sidebar,
 	SidebarContent,
 	SidebarGroup,
@@ -132,9 +130,8 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 }
 
 export function LayoutSidebar({ children }: { children: React.ReactNode }) {
-	const defaultOpen = Cookies.get(SIDEBAR_COOKIE_NAME) !== 'false';
 	return (
-		<SidebarProvider defaultOpen={defaultOpen}>
+		<SidebarProvider defaultOpen={true}>
 			<AppSidebar />
 			<SidebarInset className="border-2 flex h-[calc(100dvh-1rem)] overflow-hidden pb-3">
 				<Navbar />

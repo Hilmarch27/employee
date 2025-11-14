@@ -33,9 +33,7 @@ export type HaircutHistory = {
 	badge: string;
 	position: string;
 	haircutDate: Date;
-	formattedDate: string;
 	formattedTime: string;
-	formattedDateTime: string;
 	monthYear: string;
 	createdAt: Date | null;
 };

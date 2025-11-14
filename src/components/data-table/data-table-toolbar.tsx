@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import type { Column, Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import type { Employee, HaircutHistory } from '@/db/schema';
 import { cn } from '@/lib/utils';
 import { createBarcode } from '@/server-function/barcode-fn';
+import { getPositions } from '@/server-function/employee-fn';
 import { DataTableDateFilter } from './data-table-date-filter';
 import { DataTableViewOptions } from './data-table-view-options';
 
@@ -118,6 +119,13 @@ interface DataTableToolbarFilterProps<TData> {
 function DataTableToolbarFilter<TData>({
 	column,
 }: DataTableToolbarFilterProps<TData>) {
+	const getData = useServerFn(getPositions);
+	const { data: positions } = useQuery({
+		queryKey: ['positions'],
+		queryFn: () => getData(),
+		staleTime: 5 * 60 * 1000,
+	});
+
 	{
 		const columnMeta = column.columnDef.meta;
 		const onFilterRender = React.useCallback(() => {
@@ -136,7 +144,7 @@ function DataTableToolbarFilter<TData>({
 				case 'combobox':
 					return (
 						<Combobox
-							items={columnMeta.options || []}
+							items={positions || []}
 							value={(column.getFilterValue() as string) || ''}
 							onValueChange={(value) => column.setFilterValue(value)}
 							placeholder={columnMeta.placeholder ?? columnMeta.label}
@@ -168,7 +176,7 @@ function DataTableToolbarFilter<TData>({
 				default:
 					return null;
 			}
-		}, [column, columnMeta]);
+		}, [column, columnMeta, positions]);
 
 		return onFilterRender();
 	}

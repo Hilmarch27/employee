@@ -8,12 +8,3 @@ export const envServer = createEnv({
 	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,
 });
-
-export const envClient = createEnv({
-	clientPrefix: 'VITE_',
-	client: {
-		VITE_PUBLIC_URL: z.string(),
-	},
-	runtimeEnv: import.meta.env,
-	emptyStringAsUndefined: true,
-});

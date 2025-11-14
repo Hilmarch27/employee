@@ -61,8 +61,8 @@ export const getPositions = createServerFn({ method: 'GET' }).handler(
 				label: position,
 			}));
 		} catch (error) {
-			console.error('Error getting unique positions:', error);
-			throw new Error('Failed to get positions');
+			console.error('Error getting unique instansi:', error);
+			throw new Error('Failed to get instansi');
 		}
 	},
 );

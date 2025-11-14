@@ -123,7 +123,7 @@ function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 		{
 			accessorKey: 'position',
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Position" />
+				<DataTableColumnHeader column={column} title="Instansi" />
 			),
 			cell: ({ row }) => <div>{row.getValue('position')}</div>,
 		},
@@ -144,7 +144,7 @@ function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 				const barcodeUrl = row.getValue('barcodeUrl');
 				if (!barcodeUrl) return null;
 
-				const fullUrl = `${envClient.VITE_PUBLIC_URL}${barcodeUrl}`;
+				const fullUrl = `${barcodeUrl}`;
 
 				const handleDownload = () => {
 					const link = document.createElement('a');
@@ -179,7 +179,7 @@ function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 							title="Click to view barcode"
 						>
 							<img
-								src={`${envClient.VITE_PUBLIC_URL}${barcodeUrl}`}
+								src={`${barcodeUrl}`}
 								alt="Barcode"
 								width={100}
 								height={100}
@@ -259,7 +259,6 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 			onBlur: CreateEmployeeSc,
 		},
 		onSubmit: async ({ value }) => {
-			console.log(value);
 			toast.promise(mutateAsync({ data: value }), {
 				loading: 'Creating employee...',
 				success: 'Employee created successfully',
@@ -344,7 +343,7 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 										field.state.meta.isTouched && !field.state.meta.isValid;
 									return (
 										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor={field.name}>Position</FieldLabel>
+											<FieldLabel htmlFor={field.name}>Instansi</FieldLabel>
 											<Input
 												id={field.name}
 												name={field.name}

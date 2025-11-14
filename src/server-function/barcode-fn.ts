@@ -1,38 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createServerFn } from '@tanstack/react-start';
-import { createCanvas, loadImage } from 'canvas';
-import { and, desc, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lt, sql } from 'drizzle-orm';
 import QRCode from 'qrcode';
+import sharp from 'sharp';
 import z from 'zod';
 import { db } from '@/db';
 import { employees, haircutHistory } from '@/db/schema';
-
-async function writeFileToDisk(file: Buffer, id: string) {
-	const rootDir = process.cwd();
-	const uploadDir = path.join(rootDir, 'public', 'uploads');
-
-	await fs.promises.mkdir(uploadDir, { recursive: true });
-
-	const targetPath = path.join(uploadDir, `${id}.png`);
-
-	// Check if file exists (optional: skip atau overwrite)
-	const exists = await fs.promises
-		.access(targetPath)
-		.then(() => true)
-		.catch(() => false);
-	if (exists) {
-		console.warn(`File ${id}.png already exists, overwriting...`);
-	}
-
-	console.log('Writing', `${id}.png`, 'to', targetPath);
-	await fs.promises.writeFile(targetPath, file);
-
-	return {
-		url: `/uploads/${id}.png`,
-		name: `${id}.png`,
-	};
-}
+import { utapi } from '@/integrations/uploadthing/config';
 
 interface QRCodeOptions {
 	id: string;
@@ -55,40 +30,74 @@ async function genQRCode(options: QRCodeOptions): Promise<Buffer> {
 			},
 		});
 
-		// Setup canvas
-		const fontSize = 16;
+		const fontSize = 18;
 		const padding = 20;
-		const textHeight = fontSize + 10;
+		const textHeight = 30;
+		const canvasWidth = 250 + padding * 2;
+		const canvasHeight = 250 + padding * 2 + textHeight * 2;
 
-		const canvas = createCanvas(
-			250 + padding * 2,
-			250 + padding * 2 + textHeight * 2,
-		);
-		const ctx = canvas.getContext('2d');
+		// Create SVG untuk text (Sharp tidak punya text rendering built-in)
+		const svgTop = `
+			<svg width="${canvasWidth}" height="${textHeight}">
+				<text 
+					x="50%" 
+					y="50%" 
+					text-anchor="middle" 
+					dominant-baseline="middle"
+					font-family="Arial, sans-serif" 
+					font-size="${fontSize}" 
+					font-weight="bold"
+					fill="#000000"
+				>${name}</text>
+			</svg>
+		`;
 
-		// Background putih
-		ctx.fillStyle = '#FFFFFF';
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		const svgBottom = `
+			<svg width="${canvasWidth}" height="${textHeight}">
+				<text 
+					x="50%" 
+					y="50%" 
+					text-anchor="middle" 
+					dominant-baseline="middle"
+					font-family="Arial, sans-serif" 
+					font-size="${fontSize - 2}" 
+					fill="#666666"
+				>${id}</text>
+			</svg>
+		`;
 
-		// Load QR code image dari buffer
-		const qrImage = await loadImage(qrBuffer);
-
-		// Gambar teks nama di atas (bold)
-		ctx.fillStyle = '#000000';
-		ctx.font = `bold ${fontSize}px Arial`;
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'top';
-		ctx.fillText(name, canvas.width / 2, padding);
-
-		// Gambar QR code di tengah
-		ctx.drawImage(qrImage, padding, padding + textHeight, 250, 250);
-
-		// Gambar timestamp di bawah
-		ctx.font = `${fontSize - 2}px Arial`;
-		ctx.fillText(id, canvas.width / 2, padding + textHeight + 250 + 10);
-
-		// Return sebagai PNG buffer
-		return canvas.toBuffer('image/png');
+		// Composite semua layer
+		const finalImage = await sharp({
+			create: {
+				width: canvasWidth,
+				height: canvasHeight,
+				channels: 4,
+				background: { r: 255, g: 255, b: 255, alpha: 1 },
+			},
+		})
+			.composite([
+				// Text atas
+				{
+					input: Buffer.from(svgTop),
+					top: padding,
+					left: 0,
+				},
+				// QR Code
+				{
+					input: qrBuffer,
+					top: padding + textHeight,
+					left: padding,
+				},
+				// Text bawah
+				{
+					input: Buffer.from(svgBottom),
+					top: padding + textHeight + 250 + 10,
+					left: 0,
+				},
+			])
+			.png()
+			.toBuffer();
+		return finalImage;
 	} catch (error) {
 		throw new Error(`Failed to generate QR code: ${error}`);
 	}
@@ -116,17 +125,27 @@ export const createBarcode = createServerFn({ method: 'POST' })
 						name: item.name,
 						id: item.id,
 					});
-					const file = await writeFileToDisk(qrCode, item.id);
+
+					const file = new File([new Uint8Array(qrCode)], `${item.id}.png`, {
+						type: 'image/png',
+					});
+
+					const res = await utapi.uploadFiles(file);
+
+					if (!res.data) {
+						throw new Error('Failed to upload Barcode');
+					}
 
 					// Update database
 					await db
 						.update(employees)
-						.set({ barcodeUrl: file.url })
+						.set({ barcodeUrl: res.data.ufsUrl })
 						.where(eq(employees.id, item.id));
 
 					return {
 						id: item.id,
-						file,
+						url: res.data.ufsUrl,
+						name: item.name,
 					};
 				}),
 			);
@@ -235,7 +254,7 @@ export const getHaircutHistory = createServerFn({ method: 'GET' }).handler(
 					employees,
 					sql`${haircutHistory.employeeId} = ${employees.id}`,
 				)
-				.orderBy(desc(haircutHistory.haircutDate));
+				.orderBy(asc(employees.position), desc(haircutHistory.haircutDate));
 
 			// Format records
 			const formattedRecords = records.map((record) => {
