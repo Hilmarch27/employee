@@ -1,12 +1,12 @@
 import { jsxs, jsx } from "react/jsx-runtime";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { u as useServerFn, F as Field, a as FieldLabel, I as Input, b as FieldError, c as useClientTable, D as DataTable, d as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, e as dateRange, C as Calendar, f as DataTableColumnHeader } from "./use-client-table-DWbkD7Ce.mjs";
+import { u as useServerFn, F as Field, a as FieldLabel, I as Input, b as FieldError, c as useClientTable, D as DataTable, d as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, e as dateRange, C as Calendar, f as DataTableColumnHeader } from "./use-client-table-BQI0SkUq.mjs";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
-import { c as createLucideIcon, B as Button, e as exportHaircutHistoryExcel } from "./router-D5kaA7la.mjs";
+import { c as createLucideIcon, B as Button, e as exportHaircutHistoryExcel } from "./router-DBSpapjr.mjs";
 import { c as cn } from "./config-CJ6AisJq.mjs";
-import { g as getHaircutHistory, s as scanBarcode } from "./barcode-fn-Juir5gW5.mjs";
+import { a as getHaircutHistory, s as scanBarcode } from "./barcode-fn-DrcdRNF3.mjs";
 import { useMemo } from "react";
 import "class-variance-authority";
 import "@radix-ui/react-label";
@@ -19,12 +19,9 @@ import "@radix-ui/react-popover";
 import "react-day-picker";
 import "@radix-ui/react-dropdown-menu";
 import "@tanstack/react-router-ssr-query";
-import "@tanstack/react-devtools";
-import "@tanstack/react-router-devtools";
 import "@radix-ui/react-separator";
 import "@radix-ui/react-dialog";
 import "@radix-ui/react-tooltip";
-import "@tanstack/react-query-devtools";
 import "next-themes";
 import "uploadthing/server";
 import "drizzle-orm";
@@ -39,8 +36,8 @@ import "drizzle-orm/sqlite-core";
 import "clsx";
 import "nanoid";
 import "tailwind-merge";
+import "canvas";
 import "qrcode";
-import "sharp";
 const __iconNode$1 = [
   ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
   ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]

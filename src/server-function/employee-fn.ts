@@ -3,13 +3,14 @@ import {
 	getResponseHeaders,
 	setResponseHeaders,
 } from '@tanstack/react-start/server';
-import { desc, eq } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 import * as XLSX from 'xlsx';
 import z from 'zod';
 import { db } from '@/db';
 import { employees } from '@/db/schema';
+import { utapi } from '@/integrations/uploadthing/config';
 import { generateBadgeNumber } from '@/lib/utils';
-import { getHaircutHistory } from '@/server-function/barcode-fn';
+import { genQRCode, getHaircutHistory } from '@/server-function/barcode-fn';
 
 export const CreateEmployeeSc = z.object({
 	name: z.string().min(1),
@@ -18,26 +19,71 @@ export const CreateEmployeeSc = z.object({
 
 export type EmployeeInput = z.infer<typeof CreateEmployeeSc>;
 
+export const UpdateEmployeeSc = z.object({
+	id: z.string().min(1).optional(),
+	name: z.string().min(1).optional(),
+	position: z.string().min(1).optional(),
+});
+
+export type UpdateEmployeeInput = z.infer<typeof UpdateEmployeeSc>;
+
+export const DeleteEmployeeSc = z.object({
+	id: z.string().min(1),
+});
+
+export type DeleteEmployeeInput = z.infer<typeof DeleteEmployeeSc>;
+
 export const createEmployee = createServerFn({ method: 'POST' })
 	.inputValidator(CreateEmployeeSc)
 	.handler(async ({ data }) => {
-		const [lastSequence] = await db
-			.select({ badge: employees.badge })
+		// Get total count of employees with the same position
+		const [result] = await db
+			.select({ count: count() })
 			.from(employees)
-			.where(eq(employees.position, data.position))
-			.orderBy(desc(employees.badge))
-			.limit(1);
+			.where(eq(employees.position, data.position));
 
-		if (!lastSequence) {
-			const badge = generateBadgeNumber(data.position, 1);
-			const payload = { ...data, badge };
-			const employee = await db.insert(employees).values(payload).returning();
-			return {
-				message: 'Employee created successfully',
-				result: employee,
-			};
+		const total = result?.count ?? 0;
+		// Generate badge number: total + 1, or fallback to 1 if no data exists
+		const sequence = total > 0 ? total + 1 : 1;
+		const badge = generateBadgeNumber(data.position, sequence);
+
+		// Insert employee first to get the ID
+		const [employee] = await db
+			.insert(employees)
+			.values({ ...data, badge })
+			.returning();
+
+		if (!employee) {
+			throw new Error('Failed to create employee');
 		}
-		throw new Error('Sequence not found');
+
+		// Generate QR code
+		const qrCode = await genQRCode({
+			name: employee.name,
+			id: employee.id,
+		});
+
+		const file = new File([new Uint8Array(qrCode)], `${employee.id}.png`, {
+			type: 'image/png',
+		});
+
+		const res = await utapi.uploadFiles(file);
+
+		if (!res.data) {
+			throw new Error('Failed to upload Barcode');
+		}
+
+		// Update employee with barcodeUrl
+		const [updatedEmployee] = await db
+			.update(employees)
+			.set({ barcodeUrl: res.data.ufsUrl })
+			.where(eq(employees.id, employee.id))
+			.returning();
+
+		return {
+			message: 'Employee created successfully',
+			result: updatedEmployee ? [updatedEmployee] : [employee],
+		};
 	});
 
 export const getEmployees = createServerFn({ method: 'GET' }).handler(
@@ -49,6 +95,58 @@ export const getEmployees = createServerFn({ method: 'GET' }).handler(
 		return employee;
 	},
 );
+
+export const updateEmployee = createServerFn({ method: 'POST' })
+	.inputValidator(UpdateEmployeeSc)
+	.handler(async ({ data }) => {
+		// Check if employee exists
+		const existingEmployee = await db.query.employees.findFirst({
+			where: eq(employees.id, data.id ?? ''),
+		});
+
+		if (!existingEmployee) {
+			throw new Error('Employee not found');
+		}
+
+		// Update only name and position
+		const [updatedEmployee] = await db
+			.update(employees)
+			.set({
+				name: data.name,
+				position: data.position,
+			})
+			.where(eq(employees.id, data.id ?? ''))
+			.returning();
+
+		if (!updatedEmployee) {
+			throw new Error('Failed to update employee');
+		}
+
+		return {
+			message: 'Employee updated successfully',
+			result: updatedEmployee,
+		};
+	});
+
+export const deleteEmployee = createServerFn({ method: 'POST' })
+	.inputValidator(DeleteEmployeeSc)
+	.handler(async ({ data }) => {
+		// Check if employee exists
+		const existingEmployee = await db.query.employees.findFirst({
+			where: eq(employees.id, data.id),
+		});
+
+		if (!existingEmployee) {
+			throw new Error('Employee not found');
+		}
+
+		// Delete employee
+		await db.delete(employees).where(eq(employees.id, data.id));
+
+		return {
+			message: 'Employee deleted successfully',
+		};
+	});
 
 export const getPositions = createServerFn({ method: 'GET' }).handler(
 	async () => {

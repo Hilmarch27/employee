@@ -1,5 +1,5 @@
 import { useForm } from '@tanstack/react-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Calendar, Text, UserRoundPlus } from 'lucide-react';
@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { DataTableRowActions } from '@/components/data-table/data-table-row-actions';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import {
 	AlertDialog,
@@ -23,6 +24,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
@@ -34,7 +36,6 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import type { Employee } from '@/db/schema';
-import { envClient } from '@/env';
 import {
 	dateRange,
 	includesTrimmed,
@@ -44,7 +45,9 @@ import { formatDateTime } from '@/lib/utils';
 import {
 	CreateEmployeeSc,
 	createEmployee,
-	type EmployeeInput,
+	deleteEmployee,
+	UpdateEmployeeSc,
+	updateEmployee,
 } from '@/server-function/employee-fn';
 
 function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
@@ -231,19 +234,50 @@ function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 			filterFn: dateRange,
 			enableColumnFilter: true,
 		},
+		{
+			id: 'actions',
+			cell: ({ row, table }) => <DataTableRowActions table={table} row={row} />,
+			minSize: 50,
+			maxSize: 50,
+			enableResizing: false,
+			enableHiding: false,
+		},
 	];
 }
 
 export function DataTableEmployee({ data }: { data: Employee[] }) {
 	const [open, setOpen] = useState(false);
+	const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
 	const postEmployee = useServerFn(createEmployee);
+	const deleteEmployeeFn = useServerFn(deleteEmployee);
+	const updateEmployeeFn = useServerFn(updateEmployee);
+	const queryClient = useQueryClient();
+
+	const { mutateAsync: updateEmployeeAsync } = useMutation({
+		mutationFn: updateEmployeeFn,
+		onSuccess: () => {
+			toast.success('Employee updated successfully');
+		},
+		onError: () => {
+			toast.error('Failed to update employee');
+		},
+	});
+
+	const { mutateAsync: deleteEmployeeAsync } = useMutation({
+		mutationFn: deleteEmployeeFn,
+		onSuccess: () => {
+			toast.success('Employee deleted successfully');
+			queryClient.invalidateQueries({ queryKey: ['employees'] });
+		},
+		onError: () => {
+			toast.error('Failed to delete employee');
+		},
+	});
 
 	const { mutateAsync } = useMutation({
 		mutationFn: postEmployee,
 		onSuccess: () => {
 			toast.success('Employee created successfully');
-			form.reset();
-			setOpen(false);
 		},
 		onError: () => {
 			toast.error('Failed to create employee');
@@ -252,18 +286,35 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 
 	const form = useForm({
 		defaultValues: {
-			name: '',
-			position: '',
-		} as EmployeeInput,
+			name: editEmployee?.name || '',
+			position: editEmployee?.position || '',
+		} as any,
 		validators: {
-			onBlur: CreateEmployeeSc,
+			onSubmit: editEmployee
+				? UpdateEmployeeSc.omit({ id: true })
+				: CreateEmployeeSc,
 		},
 		onSubmit: async ({ value }) => {
-			toast.promise(mutateAsync({ data: value }), {
-				loading: 'Creating employee...',
-				success: 'Employee created successfully',
-				error: 'Failed to create employee',
-			});
+			if (editEmployee) {
+				toast.promise(
+					updateEmployeeAsync({ data: { ...value, id: editEmployee.id } }),
+					{
+						loading: 'Updating employee...',
+						success: 'Employee updated successfully',
+						error: 'Failed to update employee',
+					},
+				);
+			} else {
+				toast.promise(mutateAsync({ data: value }), {
+					loading: 'Creating employee...',
+					success: 'Employee created successfully',
+					error: 'Failed to create employee',
+				});
+			}
+			setOpen(false);
+			setEditEmployee(null);
+			form.reset();
+			queryClient.invalidateQueries({ queryKey: ['employees'] });
 		},
 	});
 
@@ -274,7 +325,7 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 	const { table } = useClientTable({
 		initialState: {
 			columnPinning: {
-				right: ['barcodeUrl'],
+				right: ['barcodeUrl', 'actions'],
 			},
 		},
 		defaultColumn: {
@@ -284,6 +335,14 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 		columns,
 		getRowId: (originalRow) => originalRow.id,
 		enableRowSelection: (row) => !row.original.barcodeUrl,
+		rowActions(payload) {
+			if (payload.variant === 'edit') {
+				setEditEmployee(payload.row.original);
+				setOpen(true);
+			} else if (payload.variant === 'delete') {
+				deleteEmployeeAsync({ data: payload.row.original });
+			}
+		},
 	});
 
 	return (
@@ -304,9 +363,12 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Create New Employee</DialogTitle>
+						<DialogTitle>
+							{editEmployee ? 'Edit Employee' : 'Create New Employee'}
+						</DialogTitle>
 					</DialogHeader>
 					<form
+						id={`employee-form-${editEmployee?.id || 'new'}`}
 						onSubmit={(e) => {
 							e.preventDefault();
 							form.handleSubmit();
@@ -363,6 +425,22 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 							</form.Field>
 						</FieldGroup>
 					</form>
+					<DialogFooter>
+						<Button type="button" onClick={() => setOpen(false)}>
+							Cancel
+						</Button>
+						<form.Subscribe selector={(state) => state.isSubmitting}>
+							{(isSubmitting) => (
+								<Button
+									type="submit"
+									form={`employee-form-${editEmployee?.id || 'new'}`}
+									disabled={isSubmitting}
+								>
+									{isSubmitting ? 'Saving...' : 'Save'}
+								</Button>
+							)}
+						</form.Subscribe>
+					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</div>

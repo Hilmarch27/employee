@@ -1,12 +1,12 @@
 import { jsx, jsxs } from "react/jsx-runtime";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { u as useServerFn, c as useClientTable, D as DataTable, d as DataTableToolbar, g as FieldGroup, F as Field, a as FieldLabel, I as Input, b as FieldError, i as includesTrimmed, T as TextAlignStart, e as dateRange, C as Calendar, f as DataTableColumnHeader, h as Check } from "./use-client-table-DWbkD7Ce.mjs";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { u as useServerFn, c as useClientTable, D as DataTable, d as DataTableToolbar, g as FieldGroup, F as Field, a as FieldLabel, I as Input, b as FieldError, i as includesTrimmed, T as TextAlignStart, e as dateRange, C as Calendar, f as DataTableColumnHeader, h as Check, j as DropdownMenu, k as DropdownMenuTrigger, E as Ellipsis, l as DropdownMenuContent, m as DropdownMenuItem, n as DropdownMenuSeparator, o as DropdownMenuShortcut } from "./use-client-table-BQI0SkUq.mjs";
 import { useForm } from "@tanstack/react-form";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
+import { c as createLucideIcon, g as getEmployees, a as createEmployee, d as deleteEmployee, u as updateEmployee, U as UpdateEmployeeSc, C as CreateEmployeeSc, B as Button, X, b as buttonVariants } from "./router-DBSpapjr.mjs";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { f as formatDateTime, c as cn } from "./config-CJ6AisJq.mjs";
-import { c as createLucideIcon, g as getEmployees, a as createEmployee, C as CreateEmployeeSc, B as Button, X, b as buttonVariants } from "./router-D5kaA7la.mjs";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import "class-variance-authority";
@@ -17,16 +17,21 @@ import "@tanstack/react-router";
 import "@radix-ui/react-slot";
 import "cmdk";
 import "@radix-ui/react-popover";
-import "./barcode-fn-Juir5gW5.mjs";
+import "./barcode-fn-DrcdRNF3.mjs";
 import "./server.mjs";
 import "node:async_hooks";
 import "@tanstack/react-router/ssr/server";
+import "canvas";
 import "drizzle-orm";
 import "qrcode";
-import "sharp";
 import "zod";
 import "react-day-picker";
 import "@radix-ui/react-dropdown-menu";
+import "@tanstack/react-router-ssr-query";
+import "@radix-ui/react-separator";
+import "@radix-ui/react-tooltip";
+import "next-themes";
+import "uploadthing/server";
 import "@libsql/client";
 import "dotenv";
 import "drizzle-orm/libsql";
@@ -35,14 +40,6 @@ import "drizzle-orm/sqlite-core";
 import "clsx";
 import "nanoid";
 import "tailwind-merge";
-import "uploadthing/server";
-import "@tanstack/react-router-ssr-query";
-import "@tanstack/react-devtools";
-import "@tanstack/react-router-devtools";
-import "@radix-ui/react-separator";
-import "@radix-ui/react-tooltip";
-import "@tanstack/react-query-devtools";
-import "next-themes";
 const __iconNode = [
   ["path", { d: "M2 21a8 8 0 0 1 13.292-6", key: "bjp14o" }],
   ["circle", { cx: "10", cy: "8", r: "5", key: "o932ke" }],
@@ -121,6 +118,19 @@ function DialogHeader({ className, ...props }) {
     }
   );
 }
+function DialogFooter({ className, ...props }) {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      "data-slot": "dialog-footer",
+      className: cn(
+        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        className
+      ),
+      ...props
+    }
+  );
+}
 function DialogTitle({
   className,
   ...props
@@ -133,6 +143,51 @@ function DialogTitle({
       ...props
     }
   );
+}
+function DataTableRowActions({
+  row,
+  table
+}) {
+  const tableMeta = table.options.meta;
+  function rowActions({ action }) {
+    if (!tableMeta?.rowActions)
+      throw new Error("rowActions function is required");
+    if (action === "delete") {
+      tableMeta.rowActions({ row, variant: "delete" });
+    }
+    if (action === "edit") {
+      tableMeta.rowActions({ row, variant: "edit" });
+    }
+  }
+  return /* @__PURE__ */ jsxs(DropdownMenu, { children: [
+    /* @__PURE__ */ jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxs(
+      Button,
+      {
+        variant: "ghost",
+        size: "icon",
+        className: "data-[state=open]:bg-muted size-8",
+        children: [
+          /* @__PURE__ */ jsx(Ellipsis, {}),
+          /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Open menu" })
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ jsxs(DropdownMenuContent, { align: "end", className: "w-[160px]", children: [
+      /* @__PURE__ */ jsx(DropdownMenuItem, { onClick: () => rowActions({ action: "edit" }), children: "Edit" }),
+      /* @__PURE__ */ jsx(DropdownMenuSeparator, {}),
+      /* @__PURE__ */ jsxs(
+        DropdownMenuItem,
+        {
+          variant: "destructive",
+          onClick: () => rowActions({ action: "delete" }),
+          children: [
+            "Delete",
+            /* @__PURE__ */ jsx(DropdownMenuShortcut, { children: "⌘⌫" })
+          ]
+        }
+      )
+    ] })
+  ] });
 }
 function AlertDialog({
   ...props
@@ -428,18 +483,47 @@ function COLUMNS_EMPLOYEES() {
       },
       filterFn: dateRange,
       enableColumnFilter: true
+    },
+    {
+      id: "actions",
+      cell: ({ row, table }) => /* @__PURE__ */ jsx(DataTableRowActions, { table, row }),
+      minSize: 50,
+      maxSize: 50,
+      enableResizing: false,
+      enableHiding: false
     }
   ];
 }
 function DataTableEmployee({ data }) {
   const [open, setOpen] = useState(false);
+  const [editEmployee, setEditEmployee] = useState(null);
   const postEmployee = useServerFn(createEmployee);
+  const deleteEmployeeFn = useServerFn(deleteEmployee);
+  const updateEmployeeFn = useServerFn(updateEmployee);
+  const queryClient = useQueryClient();
+  const { mutateAsync: updateEmployeeAsync } = useMutation({
+    mutationFn: updateEmployeeFn,
+    onSuccess: () => {
+      toast.success("Employee updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update employee");
+    }
+  });
+  const { mutateAsync: deleteEmployeeAsync } = useMutation({
+    mutationFn: deleteEmployeeFn,
+    onSuccess: () => {
+      toast.success("Employee deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete employee");
+    }
+  });
   const { mutateAsync } = useMutation({
     mutationFn: postEmployee,
     onSuccess: () => {
       toast.success("Employee created successfully");
-      form.reset();
-      setOpen(false);
     },
     onError: () => {
       toast.error("Failed to create employee");
@@ -447,18 +531,33 @@ function DataTableEmployee({ data }) {
   });
   const form = useForm({
     defaultValues: {
-      name: "",
-      position: ""
+      name: editEmployee?.name || "",
+      position: editEmployee?.position || ""
     },
     validators: {
-      onBlur: CreateEmployeeSc
+      onSubmit: editEmployee ? UpdateEmployeeSc.omit({ id: true }) : CreateEmployeeSc
     },
     onSubmit: async ({ value }) => {
-      toast.promise(mutateAsync({ data: value }), {
-        loading: "Creating employee...",
-        success: "Employee created successfully",
-        error: "Failed to create employee"
-      });
+      if (editEmployee) {
+        toast.promise(
+          updateEmployeeAsync({ data: { ...value, id: editEmployee.id } }),
+          {
+            loading: "Updating employee...",
+            success: "Employee updated successfully",
+            error: "Failed to update employee"
+          }
+        );
+      } else {
+        toast.promise(mutateAsync({ data: value }), {
+          loading: "Creating employee...",
+          success: "Employee created successfully",
+          error: "Failed to create employee"
+        });
+      }
+      setOpen(false);
+      setEditEmployee(null);
+      form.reset();
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
     }
   });
   const columns = useMemo(() => {
@@ -467,7 +566,7 @@ function DataTableEmployee({ data }) {
   const { table } = useClientTable({
     initialState: {
       columnPinning: {
-        right: ["barcodeUrl"]
+        right: ["barcodeUrl", "actions"]
       }
     },
     defaultColumn: {
@@ -476,7 +575,15 @@ function DataTableEmployee({ data }) {
     data,
     columns,
     getRowId: (originalRow) => originalRow.id,
-    enableRowSelection: (row) => !row.original.barcodeUrl
+    enableRowSelection: (row) => !row.original.barcodeUrl,
+    rowActions(payload) {
+      if (payload.variant === "edit") {
+        setEditEmployee(payload.row.original);
+        setOpen(true);
+      } else if (payload.variant === "delete") {
+        deleteEmployeeAsync({ data: payload.row.original });
+      }
+    }
   });
   return /* @__PURE__ */ jsxs("div", { className: "w-full", children: [
     /* @__PURE__ */ jsx(DataTable, { className: "min-h-[570px] py-3", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: /* @__PURE__ */ jsxs(
@@ -493,10 +600,11 @@ function DataTableEmployee({ data }) {
       }
     ) }) }),
     /* @__PURE__ */ jsx(Dialog, { open, onOpenChange: setOpen, children: /* @__PURE__ */ jsxs(DialogContent, { children: [
-      /* @__PURE__ */ jsx(DialogHeader, { children: /* @__PURE__ */ jsx(DialogTitle, { children: "Create New Employee" }) }),
+      /* @__PURE__ */ jsx(DialogHeader, { children: /* @__PURE__ */ jsx(DialogTitle, { children: editEmployee ? "Edit Employee" : "Create New Employee" }) }),
       /* @__PURE__ */ jsx(
         "form",
         {
+          id: `employee-form-${editEmployee?.id || "new"}`,
           onSubmit: (e) => {
             e.preventDefault();
             form.handleSubmit();
@@ -544,7 +652,19 @@ function DataTableEmployee({ data }) {
             } })
           ] })
         }
-      )
+      ),
+      /* @__PURE__ */ jsxs(DialogFooter, { children: [
+        /* @__PURE__ */ jsx(Button, { type: "button", onClick: () => setOpen(false), children: "Cancel" }),
+        /* @__PURE__ */ jsx(form.Subscribe, { selector: (state) => state.isSubmitting, children: (isSubmitting) => /* @__PURE__ */ jsx(
+          Button,
+          {
+            type: "submit",
+            form: `employee-form-${editEmployee?.id || "new"}`,
+            disabled: isSubmitting,
+            children: isSubmitting ? "Saving..." : "Save"
+          }
+        ) })
+      ] })
     ] }) })
   ] });
 }

@@ -3,6 +3,7 @@ import type { Row, RowData } from '@tanstack/react-table';
 import type { DataTableConfig } from '@/components/data-table/data-table-config';
 
 declare module '@tanstack/react-table' {
+	// biome-ignore lint/correctness/noUnusedVariables: this is a valid use case
 	interface ColumnMeta<TData extends RowData, TValue> {
 		disabled?: boolean | ((row: Row<TData>) => boolean);
 		variant?: FilterVariant;

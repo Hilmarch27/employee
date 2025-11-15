@@ -2,23 +2,20 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import { createRouter, createRootRouteWithContext, createFileRoute, lazyRouteComponent, HeadContent, Scripts, useLocation, Link } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
-import { d as db, e as employees, g as generateBadgeNumber, a as uploadRouter, c as cn } from "./config-CJ6AisJq.mjs";
+import { d as db, e as employees, g as generateBadgeNumber, a as uploadRouter, c as cn, u as utapi } from "./config-CJ6AisJq.mjs";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import * as React from "react";
 import { forwardRef, createElement } from "react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { useTheme } from "next-themes";
 import { Toaster as Toaster$1 } from "sonner";
 import { createRouteHandler } from "uploadthing/server";
-import { sql, desc, eq } from "drizzle-orm";
+import { sql, desc, count, eq } from "drizzle-orm";
 import z from "zod";
-import { c as createSsrRpc, g as getHaircutHistory, u as utils, w as writeSync } from "./barcode-fn-Juir5gW5.mjs";
+import { c as createSsrRpc, g as genQRCode, a as getHaircutHistory, u as utils, w as writeSync } from "./barcode-fn-DrcdRNF3.mjs";
 import { j as json, c as createServerFn, g as getResponseHeaders, s as setResponseHeaders } from "./server.mjs";
 const toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 const toCamelCase = (string) => string.replace(
@@ -847,11 +844,6 @@ function LayoutSidebar({ children }) {
     ] })
   ] });
 }
-const TanStackQueryDevtools = {
-  name: "Tanstack Query",
-  render: /* @__PURE__ */ jsx(ReactQueryDevtoolsPanel, {})
-};
-const appCss = "/assets/styles-C4FQZpdS.css";
 const Toaster = ({ ...props }) => {
   const { theme = "system" } = useTheme();
   return /* @__PURE__ */ jsx(
@@ -876,6 +868,7 @@ const Toaster = ({ ...props }) => {
     }
   );
 };
+const appCss = "/assets/styles-Dk0zbcrP.css";
 const Route$4 = createRootRouteWithContext()({
   head: () => ({
     meta: [
@@ -905,26 +898,11 @@ function RootDocument({ children }) {
     /* @__PURE__ */ jsxs("body", { children: [
       /* @__PURE__ */ jsx(Toaster, {}),
       /* @__PURE__ */ jsx(LayoutSidebar, { children }),
-      /* @__PURE__ */ jsx(
-        TanStackDevtools,
-        {
-          config: {
-            position: "bottom-right"
-          },
-          plugins: [
-            {
-              name: "Tanstack Router",
-              render: /* @__PURE__ */ jsx(TanStackRouterDevtoolsPanel, {})
-            },
-            TanStackQueryDevtools
-          ]
-        }
-      ),
       /* @__PURE__ */ jsx(Scripts, {})
     ] })
   ] });
 }
-const $$splitComponentImporter$1 = () => import("./index-C2GTDTAM.mjs");
+const $$splitComponentImporter$1 = () => import("./index-CRRHX_0A.mjs");
 const Route$3 = createFileRoute("/")({
   component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
@@ -941,28 +919,51 @@ const CreateEmployeeSc = z.object({
   name: z.string().min(1),
   position: z.string().min(1)
 });
+const UpdateEmployeeSc = z.object({
+  id: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  position: z.string().min(1).optional()
+});
+const DeleteEmployeeSc = z.object({
+  id: z.string().min(1)
+});
 const createEmployee_createServerFn_handler = createSsrRpc("be412f3b3e6ca295950e4fdcee9704a5fe5550e74a70796c87282f6a2167eadb");
 const createEmployee = createServerFn({
   method: "POST"
 }).inputValidator(CreateEmployeeSc).handler(createEmployee_createServerFn_handler, async ({
   data
 }) => {
-  const [lastSequence] = await db.select({
-    badge: employees.badge
-  }).from(employees).where(eq(employees.position, data.position)).orderBy(desc(employees.badge)).limit(1);
-  if (!lastSequence) {
-    const badge = generateBadgeNumber(data.position, 1);
-    const payload = {
-      ...data,
-      badge
-    };
-    const employee = await db.insert(employees).values(payload).returning();
-    return {
-      message: "Employee created successfully",
-      result: employee
-    };
+  const [result] = await db.select({
+    count: count()
+  }).from(employees).where(eq(employees.position, data.position));
+  const total = result?.count ?? 0;
+  const sequence = total > 0 ? total + 1 : 1;
+  const badge = generateBadgeNumber(data.position, sequence);
+  const [employee] = await db.insert(employees).values({
+    ...data,
+    badge
+  }).returning();
+  if (!employee) {
+    throw new Error("Failed to create employee");
   }
-  throw new Error("Sequence not found");
+  const qrCode = await genQRCode({
+    name: employee.name,
+    id: employee.id
+  });
+  const file = new File([new Uint8Array(qrCode)], `${employee.id}.png`, {
+    type: "image/png"
+  });
+  const res = await utapi.uploadFiles(file);
+  if (!res.data) {
+    throw new Error("Failed to upload Barcode");
+  }
+  const [updatedEmployee] = await db.update(employees).set({
+    barcodeUrl: res.data.ufsUrl
+  }).where(eq(employees.id, employee.id)).returning();
+  return {
+    message: "Employee created successfully",
+    result: updatedEmployee ? [updatedEmployee] : [employee]
+  };
 });
 const getEmployees_createServerFn_handler = createSsrRpc("d995f78514bca95f9b64006a76df31a80a116f32dc69ce9fdb5fdd431a92895c");
 const getEmployees = createServerFn({
@@ -970,6 +971,47 @@ const getEmployees = createServerFn({
 }).handler(getEmployees_createServerFn_handler, async () => {
   const employee = await db.select().from(employees).orderBy(desc(employees.createdAt));
   return employee;
+});
+const updateEmployee_createServerFn_handler = createSsrRpc("637bb0a711805f0e7b67fb66570698f4bfb37a01015b4ab8bc533387f5072a9b");
+const updateEmployee = createServerFn({
+  method: "POST"
+}).inputValidator(UpdateEmployeeSc).handler(updateEmployee_createServerFn_handler, async ({
+  data
+}) => {
+  const existingEmployee = await db.query.employees.findFirst({
+    where: eq(employees.id, data.id ?? "")
+  });
+  if (!existingEmployee) {
+    throw new Error("Employee not found");
+  }
+  const [updatedEmployee] = await db.update(employees).set({
+    name: data.name,
+    position: data.position
+  }).where(eq(employees.id, data.id ?? "")).returning();
+  if (!updatedEmployee) {
+    throw new Error("Failed to update employee");
+  }
+  return {
+    message: "Employee updated successfully",
+    result: updatedEmployee
+  };
+});
+const deleteEmployee_createServerFn_handler = createSsrRpc("7e957ad82373e00ed81c4c7232f158d4e11705028f4c1df1cf2e844c8fe8ef9c");
+const deleteEmployee = createServerFn({
+  method: "POST"
+}).inputValidator(DeleteEmployeeSc).handler(deleteEmployee_createServerFn_handler, async ({
+  data
+}) => {
+  const existingEmployee = await db.query.employees.findFirst({
+    where: eq(employees.id, data.id)
+  });
+  if (!existingEmployee) {
+    throw new Error("Employee not found");
+  }
+  await db.delete(employees).where(eq(employees.id, data.id));
+  return {
+    message: "Employee deleted successfully"
+  };
 });
 const getPositions_createServerFn_handler = createSsrRpc("a9bd7b20fa2edafd59d5d28102189a72aff3c1be54e7e3223f98f733cf4e902a");
 const getPositions = createServerFn({
@@ -1190,7 +1232,7 @@ const Route$1 = createFileRoute("/api/employee")({
     }
   }
 });
-const $$splitComponentImporter = () => import("./employee-59iZ3-0q.mjs");
+const $$splitComponentImporter = () => import("./employee-C5Wjxuzb.mjs");
 const Route = createFileRoute("/(app)/employee")({
   component: lazyRouteComponent($$splitComponentImporter, "component")
 });
@@ -1238,29 +1280,35 @@ const router = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   getRouter
 }, Symbol.toStringTag, { value: "Module" }));
-const routerD5kaA7la = /* @__PURE__ */ Object.freeze({
+const routerDBSpapjr = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   B: Button,
   C: CreateEmployeeSc,
   S: Separator,
+  U: UpdateEmployeeSc,
   a: getPositions,
   b: buttonVariants,
   c: createEmployee,
+  d: deleteEmployee,
   e: exportHaircutHistoryExcel,
   g: getEmployees,
-  r: router
+  r: router,
+  u: updateEmployee
 });
 export {
   Button as B,
   CreateEmployeeSc as C,
   Separator as S,
+  UpdateEmployeeSc as U,
   X,
   createEmployee as a,
   buttonVariants as b,
   createLucideIcon as c,
-  ChevronRight as d,
+  deleteEmployee as d,
   exportHaircutHistoryExcel as e,
-  getPositions as f,
+  ChevronRight as f,
   getEmployees as g,
-  routerD5kaA7la as r
+  getPositions as h,
+  routerDBSpapjr as r,
+  updateEmployee as u
 };

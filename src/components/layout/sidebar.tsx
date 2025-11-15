@@ -6,7 +6,6 @@ import {
 	Sidebar,
 	SidebarContent,
 	SidebarGroup,
-	SidebarGroupContent,
 	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarInset,
@@ -62,38 +61,37 @@ function MainNav({ items }: MainNavProps) {
 	);
 }
 
-type SecondaryNavProps = {
-	items: Array<{
-		title: string;
-		url: string;
-		icon: LucideIcon;
-	}>;
-};
+// type SecondaryNavProps = {
+// 	items: Array<{
+// 		title: string;
+// 		url: string;
+// 		icon: LucideIcon;
+// 	}>;
+// };
 
-// biome-ignore lint/correctness/noUnusedVariables: this is a valid use case
-function SecondaryNav({
-	items,
-	...props
-}: SecondaryNavProps & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-	return (
-		<SidebarGroup {...props}>
-			<SidebarGroupContent>
-				<SidebarMenu>
-					{items.map((item) => (
-						<SidebarMenuItem key={item.title}>
-							<SidebarMenuButton asChild size="sm">
-								<a href={item.url}>
-									<item.icon />
-									<span>{item.title}</span>
-								</a>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-					))}
-				</SidebarMenu>
-			</SidebarGroupContent>
-		</SidebarGroup>
-	);
-}
+// function SecondaryNav({
+// 	items,
+// 	...props
+// }: SecondaryNavProps & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+// 	return (
+// 		<SidebarGroup {...props}>
+// 			<SidebarGroupContent>
+// 				<SidebarMenu>
+// 					{items.map((item) => (
+// 						<SidebarMenuItem key={item.title}>
+// 							<SidebarMenuButton asChild size="sm">
+// 								<a href={item.url}>
+// 									<item.icon />
+// 									<span>{item.title}</span>
+// 								</a>
+// 							</SidebarMenuButton>
+// 						</SidebarMenuItem>
+// 					))}
+// 				</SidebarMenu>
+// 			</SidebarGroupContent>
+// 		</SidebarGroup>
+// 	);
+// }
 
 function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (

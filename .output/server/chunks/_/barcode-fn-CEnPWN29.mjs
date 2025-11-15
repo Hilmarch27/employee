@@ -1,7 +1,7 @@
 import { a as createServerRpc, c as createServerFn } from "./server.mjs";
+import { createCanvas, loadImage } from "canvas";
 import { eq, gte, lte, sql, and, asc, desc, lt } from "drizzle-orm";
 import QRCode from "qrcode";
-import sharp from "sharp";
 import z from "zod";
 import { u as utapi, d as db, e as employees, h as haircutHistory } from "./config-CJ6AisJq.mjs";
 import "node:async_hooks";
@@ -36,68 +36,26 @@ async function genQRCode(options) {
     const fontSize = 18;
     const padding = 20;
     const textHeight = 30;
-    const canvasWidth = 250 + padding * 2;
-    const canvasHeight = 250 + padding * 2 + textHeight * 2;
-    const svgTop = `
-			<svg width="${canvasWidth}" height="${textHeight}">
-				<text 
-					x="50%" 
-					y="50%" 
-					text-anchor="middle" 
-					dominant-baseline="middle"
-					font-family="Arial, sans-serif" 
-					font-size="${fontSize}" 
-					font-weight="bold"
-					fill="#000000"
-				>${name}</text>
-			</svg>
-		`;
-    const svgBottom = `
-			<svg width="${canvasWidth}" height="${textHeight}">
-				<text 
-					x="50%" 
-					y="50%" 
-					text-anchor="middle" 
-					dominant-baseline="middle"
-					font-family="Arial, sans-serif" 
-					font-size="${fontSize - 2}" 
-					fill="#666666"
-				>${id}</text>
-			</svg>
-		`;
-    const finalImage = await sharp({
-      create: {
-        width: canvasWidth,
-        height: canvasHeight,
-        channels: 4,
-        background: {
-          r: 255,
-          g: 255,
-          b: 255,
-          alpha: 1
-        }
-      }
-    }).composite([
-      // Text atas
-      {
-        input: Buffer.from(svgTop),
-        top: padding,
-        left: 0
-      },
-      // QR Code
-      {
-        input: qrBuffer,
-        top: padding + textHeight,
-        left: padding
-      },
-      // Text bawah
-      {
-        input: Buffer.from(svgBottom),
-        top: padding + textHeight + 250 + 10,
-        left: 0
-      }
-    ]).png().toBuffer();
-    return finalImage;
+    const qrSize = 250;
+    const canvasWidth = qrSize + padding * 2;
+    const canvasHeight = qrSize + padding * 2 + textHeight * 2;
+    const canvas = createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    ctx.fillStyle = "#000000";
+    ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(name, canvasWidth / 2, padding + textHeight / 2);
+    const qrImage = await loadImage(qrBuffer);
+    ctx.drawImage(qrImage, padding, padding + textHeight, qrSize, qrSize);
+    ctx.fillStyle = "#666666";
+    ctx.font = `${fontSize - 2}px Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(id, canvasWidth / 2, padding + textHeight + qrSize + 10 + textHeight / 2);
+    return canvas.toBuffer("image/png");
   } catch (error) {
     throw new Error(`Failed to generate QR code: ${error}`);
   }

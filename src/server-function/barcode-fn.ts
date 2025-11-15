@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
+import { createCanvas, loadImage } from 'canvas';
 import { and, asc, desc, eq, gte, lt, lte, type SQL, sql } from 'drizzle-orm';
 import QRCode from 'qrcode';
-import sharp from 'sharp';
 import z from 'zod';
 import { db } from '@/db';
 import { employees, haircutHistory } from '@/db/schema';
@@ -12,11 +12,10 @@ interface QRCodeOptions {
 	name: string;
 }
 
-async function genQRCode(options: QRCodeOptions): Promise<Buffer> {
+export async function genQRCode(options: QRCodeOptions): Promise<Buffer> {
 	const { id, name } = options;
 
 	try {
-		// Generate QR code sebagai buffer
 		const qrBuffer = await QRCode.toBuffer(id, {
 			width: 250,
 			margin: 2,
@@ -28,74 +27,46 @@ async function genQRCode(options: QRCodeOptions): Promise<Buffer> {
 			},
 		});
 
+		// Setup canvas dimensions
 		const fontSize = 18;
 		const padding = 20;
 		const textHeight = 30;
-		const canvasWidth = 250 + padding * 2;
-		const canvasHeight = 250 + padding * 2 + textHeight * 2;
+		const qrSize = 250;
+		const canvasWidth = qrSize + padding * 2;
+		const canvasHeight = qrSize + padding * 2 + textHeight * 2;
 
-		// Create SVG untuk text (Sharp tidak punya text rendering built-in)
-		const svgTop = `
-			<svg width="${canvasWidth}" height="${textHeight}">
-				<text 
-					x="50%" 
-					y="50%" 
-					text-anchor="middle" 
-					dominant-baseline="middle"
-					font-family="Arial, sans-serif" 
-					font-size="${fontSize}" 
-					font-weight="bold"
-					fill="#000000"
-				>${name}</text>
-			</svg>
-		`;
+		// Create canvas
+		const canvas = createCanvas(canvasWidth, canvasHeight);
+		const ctx = canvas.getContext('2d');
 
-		const svgBottom = `
-			<svg width="${canvasWidth}" height="${textHeight}">
-				<text 
-					x="50%" 
-					y="50%" 
-					text-anchor="middle" 
-					dominant-baseline="middle"
-					font-family="Arial, sans-serif" 
-					font-size="${fontSize - 2}" 
-					fill="#666666"
-				>${id}</text>
-			</svg>
-		`;
+		// Background putih
+		ctx.fillStyle = '#FFFFFF';
+		ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-		// Composite semua layer
-		const finalImage = await sharp({
-			create: {
-				width: canvasWidth,
-				height: canvasHeight,
-				channels: 4,
-				background: { r: 255, g: 255, b: 255, alpha: 1 },
-			},
-		})
-			.composite([
-				// Text atas
-				{
-					input: Buffer.from(svgTop),
-					top: padding,
-					left: 0,
-				},
-				// QR Code
-				{
-					input: qrBuffer,
-					top: padding + textHeight,
-					left: padding,
-				},
-				// Text bawah
-				{
-					input: Buffer.from(svgBottom),
-					top: padding + textHeight + 250 + 10,
-					left: 0,
-				},
-			])
-			.png()
-			.toBuffer();
-		return finalImage;
+		// Text atas (nama)
+		ctx.fillStyle = '#000000';
+		ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(name, canvasWidth / 2, padding + textHeight / 2);
+
+		// Load dan draw QR code
+		const qrImage = await loadImage(qrBuffer);
+		ctx.drawImage(qrImage, padding, padding + textHeight, qrSize, qrSize);
+
+		// Text bawah (ID)
+		ctx.fillStyle = '#666666';
+		ctx.font = `${fontSize - 2}px Arial, sans-serif`;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(
+			id,
+			canvasWidth / 2,
+			padding + textHeight + qrSize + 10 + textHeight / 2,
+		);
+
+		// Convert canvas to buffer
+		return canvas.toBuffer('image/png');
 	} catch (error) {
 		throw new Error(`Failed to generate QR code: ${error}`);
 	}
