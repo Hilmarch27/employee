@@ -1,11 +1,11 @@
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Navigate } from "@tanstack/react-router";
-import { u as useServerFn, a as useClientTable, D as DataTable, b as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, d as dateRange, C as Calendar, c as DataTableColumnHeader, e as DropdownMenu, f as DropdownMenuTrigger, E as Ellipsis, g as DropdownMenuContent, h as DropdownMenuItem, j as DropdownMenuSeparator, k as DropdownMenuShortcut, l as Check } from "./use-client-table-DMAaO5sG.mjs";
+import { u as useServerFn, a as useClientTable, D as DataTable, b as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, d as dateRange, C as Calendar, c as DataTableColumnHeader, e as Check, f as DropdownMenu, g as DropdownMenuTrigger, E as Ellipsis, h as DropdownMenuContent, j as DropdownMenuItem, k as DropdownMenuSeparator, l as DropdownMenuShortcut } from "./use-client-table-CxovFAfT.mjs";
 import { useForm } from "@tanstack/react-form";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { c as createLucideIcon, u as useSession, L as LoaderCircle, g as getEmployees, h as createEmployee, i as deleteEmployee, j as updateEmployee, U as UpdateEmployeeSc, C as CreateEmployeeSc, B as Button, f as FieldGroup, F as Field, a as FieldLabel, b as FieldError, X, k as buttonVariants } from "./router-CqXxDb1S.mjs";
+import { c as createLucideIcon, u as useSession, L as LoaderCircle, g as getEmployees, h as createEmployee, i as deleteEmployee, j as updateEmployee, U as UpdateEmployeeSc, C as CreateEmployeeSc, B as Button, f as FieldGroup, F as Field, a as FieldLabel, b as FieldError, X, k as buttonVariants } from "./router-UttYZnds.mjs";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { c as cn, f as formatDateTime } from "./config-CZfDNatN.mjs";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
@@ -339,37 +339,6 @@ function Checkbox({
 function COLUMNS_EMPLOYEES(username) {
   const baseColumns = [
     {
-      id: "select",
-      header: ({ table }) => {
-        return /* @__PURE__ */ jsx(
-          Checkbox,
-          {
-            checked: table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected() && "indeterminate",
-            onCheckedChange: (value) => table.toggleAllPageRowsSelected(!!value),
-            "aria-label": "Select all",
-            className: "translate-y-[2px] mb-2"
-          }
-        );
-      },
-      cell: ({ row }) => {
-        return /* @__PURE__ */ jsx(
-          Checkbox,
-          {
-            checked: row.getIsSelected(),
-            onCheckedChange: (value) => row.toggleSelected(!!value),
-            "aria-label": "Select row",
-            className: "translate-y-[2px] mb-2"
-          }
-        );
-      },
-      minSize: 30,
-      maxSize: 30,
-      enableResizing: false,
-      enablePinning: false,
-      enableSorting: false,
-      enableHiding: false
-    },
-    {
       accessorKey: "no",
       header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "No" }),
       cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.index + 1 }),
@@ -404,76 +373,6 @@ function COLUMNS_EMPLOYEES(username) {
       cell: ({ row }) => /* @__PURE__ */ jsx("div", { children: row.getValue("badge") })
     },
     {
-      id: "barcodeUrl",
-      accessorKey: "barcodeUrl",
-      header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Barcode" }),
-      cell: ({ row }) => {
-        const barcodeUrl = row.getValue("barcodeUrl");
-        if (!barcodeUrl) return null;
-        const fullUrl = `${barcodeUrl}`;
-        const handleDownload = () => {
-          const link = document.createElement("a");
-          link.href = fullUrl;
-          const fileName = typeof barcodeUrl === "string" && barcodeUrl.split ? barcodeUrl.split("/").pop() || "barcode.png" : "barcode.png";
-          link.download = fileName;
-          link.click();
-        };
-        const handlePrint = () => {
-          const printWindow = window.open("", "_blank");
-          if (!printWindow) return;
-          printWindow.document.write(`
-					<html>
-						<head><title>Print Barcode</title></head>
-						<body style="text-align:center;">
-						<img src="${fullUrl}" style="width:600px;height:700px;" />
-						<script>window.print(); window.close();<\/script>
-						</body>
-					</html>`);
-          printWindow.document.close();
-        };
-        return /* @__PURE__ */ jsxs(AlertDialog, { children: [
-          /* @__PURE__ */ jsx(
-            AlertDialogTrigger,
-            {
-              asChild: true,
-              className: "flex items-center justify-center cursor-pointer",
-              title: "Click to view barcode",
-              children: /* @__PURE__ */ jsx(
-                "img",
-                {
-                  src: `${barcodeUrl}`,
-                  alt: "Barcode",
-                  width: 100,
-                  height: 100,
-                  className: "w-10 h-10 object-cover"
-                }
-              )
-            }
-          ),
-          /* @__PURE__ */ jsxs(AlertDialogContent, { className: "w-fit h-fit", children: [
-            /* @__PURE__ */ jsx(AlertDialogHeader, { children: /* @__PURE__ */ jsx(AlertDialogTitle, { children: "Print Barcode" }) }),
-            /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center", children: /* @__PURE__ */ jsx(
-              "img",
-              {
-                src: fullUrl,
-                alt: "Barcode",
-                width: 200,
-                height: 200,
-                className: "w-[200px] h-[200px]r"
-              }
-            ) }),
-            /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
-              /* @__PURE__ */ jsx(AlertDialogAction, { onClick: handleDownload, children: "Download" }),
-              /* @__PURE__ */ jsx(AlertDialogAction, { onClick: handlePrint, children: "Print" }),
-              /* @__PURE__ */ jsx(AlertDialogCancel, { children: "Cancel" })
-            ] })
-          ] })
-        ] });
-      },
-      minSize: 100,
-      maxSize: 100
-    },
-    {
       id: "createdAt",
       accessorKey: "createdAt",
       header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Created At" }),
@@ -489,14 +388,117 @@ function COLUMNS_EMPLOYEES(username) {
     }
   ];
   if (username === "admin") {
-    baseColumns.push({
-      id: "actions",
-      cell: ({ row, table }) => /* @__PURE__ */ jsx(DataTableRowActions, { table, row }),
-      minSize: 50,
-      maxSize: 50,
+    baseColumns.unshift({
+      id: "select",
+      header: ({ table }) => {
+        return /* @__PURE__ */ jsx(
+          Checkbox,
+          {
+            checked: table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected() && "indeterminate",
+            onCheckedChange: (value) => table.toggleAllPageRowsSelected(!!value),
+            "aria-label": "Select all",
+            className: "translate-y-[2px] mb-2"
+          }
+        );
+      },
+      cell: ({ row }) => {
+        return /* @__PURE__ */ jsx(
+          Checkbox,
+          {
+            checked: row.getIsSelected(),
+            onCheckedChange: (value) => row.toggleSelected(!!value),
+            "aria-label": "Select row",
+            className: "translate-y-[2px] mb-2"
+          }
+        );
+      },
+      minSize: 30,
+      maxSize: 30,
       enableResizing: false,
+      enablePinning: false,
+      enableSorting: false,
       enableHiding: false
     });
+    baseColumns.push(
+      {
+        id: "barcodeUrl",
+        accessorKey: "barcodeUrl",
+        header: ({ column }) => /* @__PURE__ */ jsx(DataTableColumnHeader, { column, title: "Barcode" }),
+        cell: ({ row }) => {
+          const barcodeUrl = row.getValue("barcodeUrl");
+          if (!barcodeUrl) return null;
+          const fullUrl = `${barcodeUrl}`;
+          const handleDownload = () => {
+            const link = document.createElement("a");
+            link.href = fullUrl;
+            const fileName = typeof barcodeUrl === "string" && barcodeUrl.split ? barcodeUrl.split("/").pop() || "barcode.png" : "barcode.png";
+            link.download = fileName;
+            link.click();
+          };
+          const handlePrint = () => {
+            const printWindow = window.open("", "_blank");
+            if (!printWindow) return;
+            printWindow.document.write(`
+					<html>
+						<head><title>Print Barcode</title></head>
+						<body style="text-align:center;">
+						<img src="${fullUrl}" style="width:600px;height:700px;" />
+						<script>window.print(); window.close();<\/script>
+						</body>
+					</html>`);
+            printWindow.document.close();
+          };
+          return /* @__PURE__ */ jsxs(AlertDialog, { children: [
+            /* @__PURE__ */ jsx(
+              AlertDialogTrigger,
+              {
+                asChild: true,
+                className: "flex items-center justify-center cursor-pointer",
+                title: "Click to view barcode",
+                children: /* @__PURE__ */ jsx(
+                  "img",
+                  {
+                    src: `${barcodeUrl}`,
+                    alt: "Barcode",
+                    width: 100,
+                    height: 100,
+                    className: "w-10 h-10 object-cover"
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxs(AlertDialogContent, { className: "w-fit h-fit", children: [
+              /* @__PURE__ */ jsx(AlertDialogHeader, { children: /* @__PURE__ */ jsx(AlertDialogTitle, { children: "Print Barcode" }) }),
+              /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center", children: /* @__PURE__ */ jsx(
+                "img",
+                {
+                  src: fullUrl,
+                  alt: "Barcode",
+                  width: 200,
+                  height: 200,
+                  className: "w-[200px] h-[200px]r"
+                }
+              ) }),
+              /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
+                /* @__PURE__ */ jsx(AlertDialogAction, { onClick: handleDownload, children: "Download" }),
+                /* @__PURE__ */ jsx(AlertDialogAction, { onClick: handlePrint, children: "Print" }),
+                /* @__PURE__ */ jsx(AlertDialogCancel, { children: "Cancel" })
+              ] })
+            ] })
+          ] });
+        },
+        minSize: 100,
+        maxSize: 100
+      },
+      {
+        id: "actions",
+        cell: ({ row, table }) => /* @__PURE__ */ jsx(DataTableRowActions, { table, row }),
+        minSize: 50,
+        maxSize: 50,
+        enableResizing: false,
+        enableHiding: false
+      }
+    );
   }
   return baseColumns;
 }

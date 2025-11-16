@@ -3,7 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
-import { d as authClient, f as FieldGroup, F as Field, a as FieldLabel, b as FieldError, B as Button } from "./router-CqXxDb1S.mjs";
+import { d as authClient, f as FieldGroup, F as Field, a as FieldLabel, b as FieldError, B as Button } from "./router-UttYZnds.mjs";
 import { C as Card, a as CardHeader, b as CardTitle, d as CardDescription, c as CardContent, e as CardFooter } from "./card-fDatpBMZ.mjs";
 import { I as Input } from "./input-h-pL-VAR.mjs";
 import { c as cn } from "./config-CZfDNatN.mjs";
