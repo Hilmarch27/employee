@@ -16,15 +16,6 @@ const config = defineConfig({
     nitro(),
     viteReact(),
   ],
-  ssr: {
-		// Exclude canvas dari SSR bundling
-		noExternal: [],
-		external: ['canvas'],
-	},
-	optimizeDeps: {
-		// Exclude canvas dari pre-bundling
-		exclude: ['canvas'],
-	},
 })
 
 export default config

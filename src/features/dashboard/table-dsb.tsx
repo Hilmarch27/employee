@@ -122,7 +122,13 @@ function COLUMNS_HAIRCUT_HISTORY(): ColumnDef<HaircutHistory>[] {
 	];
 }
 
-export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
+export function DataTableHaircut({
+	data,
+	username,
+}: {
+	data: HaircutHistory[];
+	username: string;
+}) {
 	const exportExcelFn = useServerFn(exportHaircutHistoryExcel);
 
 	const { mutateAsync } = useMutation({
@@ -166,15 +172,17 @@ export function DataTableHaircut({ data }: { data: HaircutHistory[] }) {
 		<div className="w-full">
 			<DataTable className="py-3 mt-10" table={table}>
 				<DataTableToolbar table={table}>
-					<Button
-						variant="outline"
-						size="sm"
-						className="h-8"
-						onClick={handleExportExcel}
-					>
-						Export Excel
-						<FileSpreadsheet className="ml-2 h-4 w-4" />
-					</Button>
+					{username === 'admin' && (
+						<Button
+							variant="outline"
+							size="sm"
+							className="h-8"
+							onClick={handleExportExcel}
+						>
+							Export Excel
+							<FileSpreadsheet className="ml-2 h-4 w-4" />
+						</Button>
+					)}
 				</DataTableToolbar>
 			</DataTable>
 		</div>

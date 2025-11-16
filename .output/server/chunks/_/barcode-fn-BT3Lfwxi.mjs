@@ -3,7 +3,7 @@ import { createCanvas, loadImage } from "canvas";
 import { eq, gte, lte, sql, and, asc, desc, lt } from "drizzle-orm";
 import QRCode from "qrcode";
 import z from "zod";
-import { u as utapi, d as db, e as employees, h as haircutHistory } from "./config-CJ6AisJq.mjs";
+import { u as utapi, d as db, e as employees, h as haircutHistory } from "./config-CZfDNatN.mjs";
 import "node:async_hooks";
 import "react/jsx-runtime";
 import "@tanstack/react-router/ssr/server";

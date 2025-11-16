@@ -50,17 +50,11 @@ import {
 	updateEmployee,
 } from '@/server-function/employee-fn';
 
-function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
-	return [
+function COLUMNS_EMPLOYEES(username: string): ColumnDef<Employee>[] {
+	const baseColumns: ColumnDef<Employee>[] = [
 		{
 			id: 'select',
 			header: ({ table }) => {
-				const hasAnyWithoutBarcode = table
-					.getCoreRowModel()
-					.rows.some((r) => !r.original.barcodeUrl);
-
-				if (!hasAnyWithoutBarcode) return null;
-
 				return (
 					<Checkbox
 						checked={
@@ -76,9 +70,6 @@ function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 				);
 			},
 			cell: ({ row }) => {
-				const hasBarcode = !!row.original.barcodeUrl;
-				if (hasBarcode) return null;
-
 				return (
 					<Checkbox
 						checked={row.getIsSelected()}
@@ -234,18 +225,29 @@ function COLUMNS_EMPLOYEES(): ColumnDef<Employee>[] {
 			filterFn: dateRange,
 			enableColumnFilter: true,
 		},
-		{
+	];
+
+	if (username === 'admin') {
+		baseColumns.push({
 			id: 'actions',
 			cell: ({ row, table }) => <DataTableRowActions table={table} row={row} />,
 			minSize: 50,
 			maxSize: 50,
 			enableResizing: false,
 			enableHiding: false,
-		},
-	];
+		});
+	}
+
+	return baseColumns;
 }
 
-export function DataTableEmployee({ data }: { data: Employee[] }) {
+export function DataTableEmployee({
+	data,
+	username,
+}: {
+	data: Employee[];
+	username: string;
+}) {
 	const [open, setOpen] = useState(false);
 	const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
 	const postEmployee = useServerFn(createEmployee);
@@ -257,6 +259,7 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 		mutationFn: updateEmployeeFn,
 		onSuccess: () => {
 			toast.success('Employee updated successfully');
+			queryClient.invalidateQueries({ queryKey: ['employees'] });
 		},
 		onError: () => {
 			toast.error('Failed to update employee');
@@ -278,6 +281,7 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 		mutationFn: postEmployee,
 		onSuccess: () => {
 			toast.success('Employee created successfully');
+			queryClient.invalidateQueries({ queryKey: ['employees'] });
 		},
 		onError: () => {
 			toast.error('Failed to create employee');
@@ -300,32 +304,30 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 					updateEmployeeAsync({ data: { ...value, id: editEmployee.id } }),
 					{
 						loading: 'Updating employee...',
-						success: 'Employee updated successfully',
 						error: 'Failed to update employee',
 					},
 				);
 			} else {
 				toast.promise(mutateAsync({ data: value }), {
 					loading: 'Creating employee...',
-					success: 'Employee created successfully',
 					error: 'Failed to create employee',
 				});
 			}
 			setOpen(false);
 			setEditEmployee(null);
 			form.reset();
-			queryClient.invalidateQueries({ queryKey: ['employees'] });
 		},
 	});
 
 	const columns = useMemo(() => {
-		return COLUMNS_EMPLOYEES();
-	}, []);
+		return COLUMNS_EMPLOYEES(username);
+	}, [username]);
 
 	const { table } = useClientTable({
 		initialState: {
 			columnPinning: {
-				right: ['barcodeUrl', 'actions'],
+				right:
+					username === 'admin' ? ['barcodeUrl', 'actions'] : ['barcodeUrl'],
 			},
 		},
 		defaultColumn: {
@@ -349,15 +351,17 @@ export function DataTableEmployee({ data }: { data: Employee[] }) {
 		<div className="w-full">
 			<DataTable className="min-h-[570px] py-3" table={table}>
 				<DataTableToolbar table={table}>
-					<Button
-						onClick={() => setOpen(true)}
-						variant="outline"
-						size="sm"
-						className="h-8"
-					>
-						Create New
-						<UserRoundPlus className="ml-2 h-4 w-4" />
-					</Button>
+					{username === 'admin' && (
+						<Button
+							onClick={() => setOpen(true)}
+							variant="outline"
+							size="sm"
+							className="h-8"
+						>
+							Create New
+							<UserRoundPlus className="ml-2 h-4 w-4" />
+						</Button>
+					)}
 				</DataTableToolbar>
 			</DataTable>
 			<Dialog open={open} onOpenChange={setOpen}>

@@ -7,7 +7,7 @@ import { count, desc, eq } from 'drizzle-orm';
 import * as XLSX from 'xlsx';
 import z from 'zod';
 import { db } from '@/db';
-import { employees } from '@/db/schema';
+import { employees, user } from '@/db/schema';
 import { utapi } from '@/integrations/uploadthing/config';
 import { generateBadgeNumber } from '@/lib/utils';
 import { genQRCode, getHaircutHistory } from '@/server-function/barcode-fn';

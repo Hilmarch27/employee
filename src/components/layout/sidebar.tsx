@@ -1,11 +1,12 @@
-import { useLocation } from '@tanstack/react-router';
+import { Navigate, useLocation } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
-import { Command, Home, Users } from 'lucide-react';
+import { Command, Home, LogOut, Users } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import {
 	Sidebar,
 	SidebarContent,
 	SidebarGroup,
+	SidebarGroupContent,
 	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarInset,
@@ -14,6 +15,7 @@ import {
 	SidebarMenuItem,
 	SidebarProvider,
 } from '@/components/ui/sidebar';
+import { authClient } from '@/integrations/auth/auth-client';
 
 export const DATA_SIDEBAR = {
 	navMain: [
@@ -26,6 +28,13 @@ export const DATA_SIDEBAR = {
 			name: 'Employee',
 			url: '/employee',
 			icon: Users,
+		},
+	],
+	navSecondary: [
+		{
+			title: 'Logout',
+			url: '#',
+			icon: LogOut,
 		},
 	],
 };
@@ -61,37 +70,49 @@ function MainNav({ items }: MainNavProps) {
 	);
 }
 
-// type SecondaryNavProps = {
-// 	items: Array<{
-// 		title: string;
-// 		url: string;
-// 		icon: LucideIcon;
-// 	}>;
-// };
+type SecondaryNavProps = {
+	items: Array<{
+		title: string;
+		url: string;
+		icon: LucideIcon;
+	}>;
+};
 
-// function SecondaryNav({
-// 	items,
-// 	...props
-// }: SecondaryNavProps & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-// 	return (
-// 		<SidebarGroup {...props}>
-// 			<SidebarGroupContent>
-// 				<SidebarMenu>
-// 					{items.map((item) => (
-// 						<SidebarMenuItem key={item.title}>
-// 							<SidebarMenuButton asChild size="sm">
-// 								<a href={item.url}>
-// 									<item.icon />
-// 									<span>{item.title}</span>
-// 								</a>
-// 							</SidebarMenuButton>
-// 						</SidebarMenuItem>
-// 					))}
-// 				</SidebarMenu>
-// 			</SidebarGroupContent>
-// 		</SidebarGroup>
-// 	);
-// }
+function SecondaryNav({
+	items,
+	...props
+}: SecondaryNavProps & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+	return (
+		<SidebarGroup {...props}>
+			<SidebarGroupContent>
+				<SidebarMenu>
+					{items.map((item) => (
+						<SidebarMenuItem key={item.title}>
+							<SidebarMenuButton
+								asChild
+								size="sm"
+								onClick={async () => {
+									await authClient.signOut({
+										fetchOptions: {
+											onSuccess: () => {
+												<Navigate to="/signin" />;
+											},
+										},
+									});
+								}}
+							>
+								<a href={item.url}>
+									<item.icon />
+									<span>{item.title}</span>
+								</a>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					))}
+				</SidebarMenu>
+			</SidebarGroupContent>
+		</SidebarGroup>
+	);
+}
 
 function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
@@ -115,13 +136,23 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<MainNav items={DATA_SIDEBAR.navMain} />
-				{/* <SecondaryNav items={DATA_SIDEBAR.navSecondary} className="mt-auto" /> */}
+				<SecondaryNav items={DATA_SIDEBAR.navSecondary} className="mt-auto" />
 			</SidebarContent>
 		</Sidebar>
 	);
 }
 
 export function LayoutSidebar({ children }: { children: React.ReactNode }) {
+	const pathname = useLocation({
+		select: (location) => location.pathname,
+	});
+
+	const isSignin = pathname === '/signin';
+
+	if (isSignin) {
+		return <>{children}</>;
+	}
+
 	return (
 		<SidebarProvider defaultOpen={true}>
 			<AppSidebar />

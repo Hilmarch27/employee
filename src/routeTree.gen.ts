@@ -10,13 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiUsersRouteImport } from './routes/api/users'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as ApiEmployeeRouteImport } from './routes/api/employee'
+import { Route as appSigninRouteImport } from './routes/(app)/signin'
 import { Route as appEmployeeRouteImport } from './routes/(app)/employee'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUsersRoute = ApiUsersRouteImport.update({
+  id: '/api/users',
+  path: '/api/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
@@ -29,49 +37,88 @@ const ApiEmployeeRoute = ApiEmployeeRouteImport.update({
   path: '/api/employee',
   getParentRoute: () => rootRouteImport,
 } as any)
+const appSigninRoute = appSigninRouteImport.update({
+  id: '/(app)/signin',
+  path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const appEmployeeRoute = appEmployeeRouteImport.update({
   id: '/(app)/employee',
   path: '/employee',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/employee': typeof appEmployeeRoute
+  '/signin': typeof appSigninRoute
   '/api/employee': typeof ApiEmployeeRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/api/users': typeof ApiUsersRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/employee': typeof appEmployeeRoute
+  '/signin': typeof appSigninRoute
   '/api/employee': typeof ApiEmployeeRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/api/users': typeof ApiUsersRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(app)/employee': typeof appEmployeeRoute
+  '/(app)/signin': typeof appSigninRoute
   '/api/employee': typeof ApiEmployeeRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/api/users': typeof ApiUsersRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/employee' | '/api/employee' | '/api/uploadthing'
+  fullPaths:
+    | '/'
+    | '/employee'
+    | '/signin'
+    | '/api/employee'
+    | '/api/uploadthing'
+    | '/api/users'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/employee' | '/api/employee' | '/api/uploadthing'
+  to:
+    | '/'
+    | '/employee'
+    | '/signin'
+    | '/api/employee'
+    | '/api/uploadthing'
+    | '/api/users'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/(app)/employee'
+    | '/(app)/signin'
     | '/api/employee'
     | '/api/uploadthing'
+    | '/api/users'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   appEmployeeRoute: typeof appEmployeeRoute
+  appSigninRoute: typeof appSigninRoute
   ApiEmployeeRoute: typeof ApiEmployeeRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
+  ApiUsersRoute: typeof ApiUsersRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -81,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/users': {
+      id: '/api/users'
+      path: '/api/users'
+      fullPath: '/api/users'
+      preLoaderRoute: typeof ApiUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/uploadthing': {
@@ -97,11 +151,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEmployeeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(app)/signin': {
+      id: '/(app)/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof appSigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(app)/employee': {
       id: '/(app)/employee'
       path: '/employee'
       fullPath: '/employee'
       preLoaderRoute: typeof appEmployeeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -110,8 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   appEmployeeRoute: appEmployeeRoute,
+  appSigninRoute: appSigninRoute,
   ApiEmployeeRoute: ApiEmployeeRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
+  ApiUsersRoute: ApiUsersRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

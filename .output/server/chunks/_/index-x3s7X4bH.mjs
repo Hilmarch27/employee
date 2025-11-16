@@ -1,19 +1,30 @@
-import { jsxs, jsx } from "react/jsx-runtime";
+import { jsx, jsxs } from "react/jsx-runtime";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { u as useServerFn, F as Field, a as FieldLabel, I as Input, b as FieldError, c as useClientTable, D as DataTable, d as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, e as dateRange, C as Calendar, f as DataTableColumnHeader } from "./use-client-table-BQI0SkUq.mjs";
+import { Navigate } from "@tanstack/react-router";
+import { u as useServerFn, a as useClientTable, D as DataTable, b as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, d as dateRange, C as Calendar, c as DataTableColumnHeader } from "./use-client-table-DMAaO5sG.mjs";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
-import { c as createLucideIcon, B as Button, e as exportHaircutHistoryExcel } from "./router-DBSpapjr.mjs";
-import { c as cn } from "./config-CJ6AisJq.mjs";
-import { a as getHaircutHistory, s as scanBarcode } from "./barcode-fn-DrcdRNF3.mjs";
+import { c as createLucideIcon, u as useSession, L as LoaderCircle, F as Field, a as FieldLabel, b as FieldError, B as Button, e as exportHaircutHistoryExcel } from "./router-CqXxDb1S.mjs";
+import { C as Card, a as CardHeader, b as CardTitle, c as CardContent } from "./card-fDatpBMZ.mjs";
+import { I as Input } from "./input-h-pL-VAR.mjs";
+import { a as getHaircutHistory, s as scanBarcode } from "./barcode-fn-B1yNXQ6U.mjs";
 import { useMemo } from "react";
-import "class-variance-authority";
-import "@radix-ui/react-label";
 import "@tanstack/react-table";
+import "./config-CZfDNatN.mjs";
+import "@libsql/client";
+import "dotenv";
+import "drizzle-orm/libsql";
+import "@t3-oss/env-core";
+import "drizzle-orm";
+import "drizzle-orm/sqlite-core";
+import "clsx";
+import "nanoid";
+import "tailwind-merge";
+import "uploadthing/server";
 import "@radix-ui/react-select";
-import "@tanstack/react-router";
 import "@radix-ui/react-slot";
+import "class-variance-authority";
 import "cmdk";
 import "@radix-ui/react-popover";
 import "react-day-picker";
@@ -22,20 +33,17 @@ import "@tanstack/react-router-ssr-query";
 import "@radix-ui/react-separator";
 import "@radix-ui/react-dialog";
 import "@radix-ui/react-tooltip";
+import "better-auth/client/plugins";
+import "better-auth/react";
 import "next-themes";
-import "uploadthing/server";
-import "drizzle-orm";
+import "better-auth";
+import "better-auth/adapters/drizzle";
+import "better-auth/plugins";
+import "better-auth/react-start";
 import "./server.mjs";
 import "node:async_hooks";
 import "@tanstack/react-router/ssr/server";
-import "@libsql/client";
-import "dotenv";
-import "drizzle-orm/libsql";
-import "@t3-oss/env-core";
-import "drizzle-orm/sqlite-core";
-import "clsx";
-import "nanoid";
-import "tailwind-merge";
+import "@radix-ui/react-label";
 import "canvas";
 import "qrcode";
 const __iconNode$1 = [
@@ -58,52 +66,6 @@ const __iconNode = [
   ["path", { d: "M14 17h2", key: "10kma7" }]
 ];
 const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode);
-function Card({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card",
-      className: cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function CardHeader({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card-header",
-      className: cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function CardTitle({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card-title",
-      className: cn("leading-none font-semibold", className),
-      ...props
-    }
-  );
-}
-function CardContent({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "card-content",
-      className: cn("px-6", className),
-      ...props
-    }
-  );
-}
 function ScanDsb() {
   const scanBarcodeFn = useServerFn(scanBarcode);
   const queryClient = useQueryClient();
@@ -252,7 +214,10 @@ function COLUMNS_HAIRCUT_HISTORY() {
     }
   ];
 }
-function DataTableHaircut({ data }) {
+function DataTableHaircut({
+  data,
+  username
+}) {
   const exportExcelFn = useServerFn(exportHaircutHistoryExcel);
   const { mutateAsync } = useMutation({
     mutationFn: async () => {
@@ -287,7 +252,7 @@ function DataTableHaircut({ data }) {
     columns,
     getRowId: (originalRow) => originalRow.id
   });
-  return /* @__PURE__ */ jsx("div", { className: "w-full", children: /* @__PURE__ */ jsx(DataTable, { className: "py-3 mt-10", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: /* @__PURE__ */ jsxs(
+  return /* @__PURE__ */ jsx("div", { className: "w-full", children: /* @__PURE__ */ jsx(DataTable, { className: "py-3 mt-10", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: username === "admin" && /* @__PURE__ */ jsxs(
     Button,
     {
       variant: "outline",
@@ -310,9 +275,16 @@ function App() {
     queryKey: ["haircut-history"],
     queryFn: () => getData()
   });
-  return /* @__PURE__ */ jsxs("div", { className: "flex flex-col justify-between pe-5", children: [
+  const {
+    data: session,
+    isPending
+  } = useSession();
+  if (isPending) {
+    return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen", children: /* @__PURE__ */ jsx(LoaderCircle, { className: "size-10 animate-spin" }) });
+  }
+  return !session ? /* @__PURE__ */ jsx(Navigate, { to: "/signin" }) : /* @__PURE__ */ jsxs("div", { className: "flex flex-col justify-between pe-5", children: [
     /* @__PURE__ */ jsx(ScanDsb, {}),
-    isLoading ? /* @__PURE__ */ jsx("div", { children: "Loading..." }) : /* @__PURE__ */ jsx(DataTableHaircut, { data: history?.data || [] })
+    isLoading ? /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen", children: /* @__PURE__ */ jsx(LoaderCircle, { className: "size-10 animate-spin" }) }) : /* @__PURE__ */ jsx(DataTableHaircut, { username: session?.user.username || "", data: history?.data || [] })
   ] });
 }
 export {

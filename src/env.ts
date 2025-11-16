@@ -4,6 +4,8 @@ import { z } from 'zod';
 export const envServer = createEnv({
 	server: {
 		DB_FILE_NAME: z.string().min(1),
+		BETTER_AUTH_URL: z.string().min(1),
+		BETTER_AUTH_SECRET: z.string().min(1),
 	},
 	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,

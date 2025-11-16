@@ -1,23 +1,23 @@
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { u as useServerFn, c as useClientTable, D as DataTable, d as DataTableToolbar, g as FieldGroup, F as Field, a as FieldLabel, I as Input, b as FieldError, i as includesTrimmed, T as TextAlignStart, e as dateRange, C as Calendar, f as DataTableColumnHeader, h as Check, j as DropdownMenu, k as DropdownMenuTrigger, E as Ellipsis, l as DropdownMenuContent, m as DropdownMenuItem, n as DropdownMenuSeparator, o as DropdownMenuShortcut } from "./use-client-table-BQI0SkUq.mjs";
+import { Navigate } from "@tanstack/react-router";
+import { u as useServerFn, a as useClientTable, D as DataTable, b as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, d as dateRange, C as Calendar, c as DataTableColumnHeader, e as DropdownMenu, f as DropdownMenuTrigger, E as Ellipsis, g as DropdownMenuContent, h as DropdownMenuItem, j as DropdownMenuSeparator, k as DropdownMenuShortcut, l as Check } from "./use-client-table-DMAaO5sG.mjs";
 import { useForm } from "@tanstack/react-form";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { c as createLucideIcon, g as getEmployees, a as createEmployee, d as deleteEmployee, u as updateEmployee, U as UpdateEmployeeSc, C as CreateEmployeeSc, B as Button, X, b as buttonVariants } from "./router-DBSpapjr.mjs";
+import { c as createLucideIcon, u as useSession, L as LoaderCircle, g as getEmployees, h as createEmployee, i as deleteEmployee, j as updateEmployee, U as UpdateEmployeeSc, C as CreateEmployeeSc, B as Button, f as FieldGroup, F as Field, a as FieldLabel, b as FieldError, X, k as buttonVariants } from "./router-CqXxDb1S.mjs";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
-import { f as formatDateTime, c as cn } from "./config-CJ6AisJq.mjs";
+import { c as cn, f as formatDateTime } from "./config-CZfDNatN.mjs";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
-import "class-variance-authority";
-import "@radix-ui/react-label";
+import { I as Input } from "./input-h-pL-VAR.mjs";
 import "@tanstack/react-table";
 import "@radix-ui/react-select";
-import "@tanstack/react-router";
 import "@radix-ui/react-slot";
+import "class-variance-authority";
 import "cmdk";
 import "@radix-ui/react-popover";
-import "./barcode-fn-DrcdRNF3.mjs";
+import "./barcode-fn-B1yNXQ6U.mjs";
 import "./server.mjs";
 import "node:async_hooks";
 import "@tanstack/react-router/ssr/server";
@@ -30,8 +30,15 @@ import "@radix-ui/react-dropdown-menu";
 import "@tanstack/react-router-ssr-query";
 import "@radix-ui/react-separator";
 import "@radix-ui/react-tooltip";
+import "better-auth/client/plugins";
+import "better-auth/react";
 import "next-themes";
+import "better-auth";
+import "better-auth/adapters/drizzle";
+import "better-auth/plugins";
+import "better-auth/react-start";
 import "uploadthing/server";
+import "@radix-ui/react-label";
 import "@libsql/client";
 import "dotenv";
 import "drizzle-orm/libsql";
@@ -329,13 +336,11 @@ function Checkbox({
     }
   );
 }
-function COLUMNS_EMPLOYEES() {
-  return [
+function COLUMNS_EMPLOYEES(username) {
+  const baseColumns = [
     {
       id: "select",
       header: ({ table }) => {
-        const hasAnyWithoutBarcode = table.getCoreRowModel().rows.some((r) => !r.original.barcodeUrl);
-        if (!hasAnyWithoutBarcode) return null;
         return /* @__PURE__ */ jsx(
           Checkbox,
           {
@@ -347,8 +352,6 @@ function COLUMNS_EMPLOYEES() {
         );
       },
       cell: ({ row }) => {
-        const hasBarcode = !!row.original.barcodeUrl;
-        if (hasBarcode) return null;
         return /* @__PURE__ */ jsx(
           Checkbox,
           {
@@ -483,18 +486,24 @@ function COLUMNS_EMPLOYEES() {
       },
       filterFn: dateRange,
       enableColumnFilter: true
-    },
-    {
+    }
+  ];
+  if (username === "admin") {
+    baseColumns.push({
       id: "actions",
       cell: ({ row, table }) => /* @__PURE__ */ jsx(DataTableRowActions, { table, row }),
       minSize: 50,
       maxSize: 50,
       enableResizing: false,
       enableHiding: false
-    }
-  ];
+    });
+  }
+  return baseColumns;
 }
-function DataTableEmployee({ data }) {
+function DataTableEmployee({
+  data,
+  username
+}) {
   const [open, setOpen] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
   const postEmployee = useServerFn(createEmployee);
@@ -505,6 +514,7 @@ function DataTableEmployee({ data }) {
     mutationFn: updateEmployeeFn,
     onSuccess: () => {
       toast.success("Employee updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
     },
     onError: () => {
       toast.error("Failed to update employee");
@@ -524,6 +534,7 @@ function DataTableEmployee({ data }) {
     mutationFn: postEmployee,
     onSuccess: () => {
       toast.success("Employee created successfully");
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
     },
     onError: () => {
       toast.error("Failed to create employee");
@@ -543,30 +554,27 @@ function DataTableEmployee({ data }) {
           updateEmployeeAsync({ data: { ...value, id: editEmployee.id } }),
           {
             loading: "Updating employee...",
-            success: "Employee updated successfully",
             error: "Failed to update employee"
           }
         );
       } else {
         toast.promise(mutateAsync({ data: value }), {
           loading: "Creating employee...",
-          success: "Employee created successfully",
           error: "Failed to create employee"
         });
       }
       setOpen(false);
       setEditEmployee(null);
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ["employees"] });
     }
   });
   const columns = useMemo(() => {
-    return COLUMNS_EMPLOYEES();
-  }, []);
+    return COLUMNS_EMPLOYEES(username);
+  }, [username]);
   const { table } = useClientTable({
     initialState: {
       columnPinning: {
-        right: ["barcodeUrl", "actions"]
+        right: username === "admin" ? ["barcodeUrl", "actions"] : ["barcodeUrl"]
       }
     },
     defaultColumn: {
@@ -586,7 +594,7 @@ function DataTableEmployee({ data }) {
     }
   });
   return /* @__PURE__ */ jsxs("div", { className: "w-full", children: [
-    /* @__PURE__ */ jsx(DataTable, { className: "min-h-[570px] py-3", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: /* @__PURE__ */ jsxs(
+    /* @__PURE__ */ jsx(DataTable, { className: "min-h-[570px] py-3", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: username === "admin" && /* @__PURE__ */ jsxs(
       Button,
       {
         onClick: () => setOpen(true),
@@ -677,7 +685,14 @@ function RouteComponent() {
     queryKey: ["employees"],
     queryFn: () => getData()
   });
-  return isLoading ? /* @__PURE__ */ jsx("div", { children: "Loading..." }) : /* @__PURE__ */ jsx(DataTableEmployee, { data: data ?? [] });
+  const {
+    data: session,
+    isPending
+  } = useSession();
+  if (isPending) {
+    return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen", children: /* @__PURE__ */ jsx(LoaderCircle, { className: "size-10 animate-spin" }) });
+  }
+  return !session ? /* @__PURE__ */ jsx(Navigate, { to: "/signin" }) : isLoading ? /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen", children: /* @__PURE__ */ jsx(LoaderCircle, { className: "size-10 animate-spin" }) }) : /* @__PURE__ */ jsx(DataTableEmployee, { username: session?.user.username || "", data: data ?? [] });
 }
 export {
   RouteComponent as component

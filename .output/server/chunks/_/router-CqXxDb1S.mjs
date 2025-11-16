@@ -1,22 +1,29 @@
-import { jsx, jsxs } from "react/jsx-runtime";
+import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { createRouter, createRootRouteWithContext, createFileRoute, lazyRouteComponent, HeadContent, Scripts, useLocation, Link } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
-import { d as db, e as employees, g as generateBadgeNumber, a as uploadRouter, c as cn, u as utapi } from "./config-CJ6AisJq.mjs";
+import { d as db, e as employees, g as generateBadgeNumber, a as uploadRouter, c as cn, u as utapi } from "./config-CZfDNatN.mjs";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import * as React from "react";
-import { forwardRef, createElement } from "react";
+import { forwardRef, createElement, useMemo } from "react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { usernameClient } from "better-auth/client/plugins";
+import { createAuthClient } from "better-auth/react";
 import { useTheme } from "next-themes";
 import { Toaster as Toaster$1 } from "sonner";
+import z from "zod";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { username } from "better-auth/plugins";
+import { reactStartCookies } from "better-auth/react-start";
+import { j as json, c as createServerFn, g as getResponseHeaders, s as setResponseHeaders } from "./server.mjs";
 import { createRouteHandler } from "uploadthing/server";
 import { sql, desc, count, eq } from "drizzle-orm";
-import z from "zod";
-import { c as createSsrRpc, g as genQRCode, a as getHaircutHistory, u as utils, w as writeSync } from "./barcode-fn-DrcdRNF3.mjs";
-import { j as json, c as createServerFn, g as getResponseHeaders, s as setResponseHeaders } from "./server.mjs";
+import { c as createSsrRpc, g as genQRCode, a as getHaircutHistory, u as utils, w as writeSync } from "./barcode-fn-B1yNXQ6U.mjs";
+import * as LabelPrimitive from "@radix-ui/react-label";
 const toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 const toCamelCase = (string) => string.replace(
   /^([A-Z])|[\s-_]+(\w)/g,
@@ -92,21 +99,21 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$a = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$a);
-const __iconNode$9 = [
+const __iconNode$b = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$b);
+const __iconNode$a = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$9);
-const __iconNode$8 = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$a);
+const __iconNode$9 = [
   [
     "path",
     { d: "M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3", key: "11bfej" }
   ]
 ];
-const Command = createLucideIcon("command", __iconNode$8);
-const __iconNode$7 = [
+const Command = createLucideIcon("command", __iconNode$9);
+const __iconNode$8 = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
     "path",
@@ -116,15 +123,21 @@ const __iconNode$7 = [
     }
   ]
 ];
-const House = createLucideIcon("house", __iconNode$7);
-const __iconNode$6 = [
+const House = createLucideIcon("house", __iconNode$8);
+const __iconNode$7 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$6);
-const __iconNode$5 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$5);
+const Info = createLucideIcon("info", __iconNode$7);
+const __iconNode$6 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$6);
+const __iconNode$5 = [
+  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
+  ["path", { d: "M21 12H9", key: "dn1m92" }],
+  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
+];
+const LogOut = createLucideIcon("log-out", __iconNode$5);
 const __iconNode$4 = [
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   [
@@ -699,6 +712,20 @@ function SidebarGroupLabel({
     }
   );
 }
+function SidebarGroupContent({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      "data-slot": "sidebar-group-content",
+      "data-sidebar": "group-content",
+      className: cn("w-full text-sm", className),
+      ...props
+    }
+  );
+}
 function SidebarMenu({ className, ...props }) {
   return /* @__PURE__ */ jsx(
     "ul",
@@ -797,6 +824,10 @@ function Navbar() {
     /* @__PURE__ */ jsx(Breadcrumbs, {})
   ] }) });
 }
+const authClient = createAuthClient({
+  plugins: [usernameClient()]
+});
+const useSession = authClient.useSession;
 const DATA_SIDEBAR = {
   navMain: [
     {
@@ -808,6 +839,13 @@ const DATA_SIDEBAR = {
       name: "Employee",
       url: "/employee",
       icon: Users
+    }
+  ],
+  navSecondary: [
+    {
+      title: "Logout",
+      url: "#",
+      icon: LogOut
     }
   ]
 };
@@ -823,6 +861,30 @@ function MainNav({ items }) {
     ] }) }) }, item.name)) })
   ] });
 }
+function SecondaryNav({
+  items,
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(SidebarGroup, { ...props, children: /* @__PURE__ */ jsx(SidebarGroupContent, { children: /* @__PURE__ */ jsx(SidebarMenu, { children: items.map((item) => /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(
+    SidebarMenuButton,
+    {
+      asChild: true,
+      size: "sm",
+      onClick: async () => {
+        await authClient.signOut({
+          fetchOptions: {
+            onSuccess: () => {
+            }
+          }
+        });
+      },
+      children: /* @__PURE__ */ jsxs("a", { href: item.url, children: [
+        /* @__PURE__ */ jsx(item.icon, {}),
+        /* @__PURE__ */ jsx("span", { children: item.title })
+      ] })
+    }
+  ) }, item.title)) }) }) });
+}
 function AppSidebar({ ...props }) {
   return /* @__PURE__ */ jsxs(Sidebar, { variant: "inset", ...props, children: [
     /* @__PURE__ */ jsx(SidebarHeader, { children: /* @__PURE__ */ jsx(SidebarMenu, { children: /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { size: "lg", asChild: true, children: /* @__PURE__ */ jsxs("a", { href: "/", children: [
@@ -832,10 +894,20 @@ function AppSidebar({ ...props }) {
         /* @__PURE__ */ jsx("span", { className: "truncate text-xs", children: "ADMIN" })
       ] })
     ] }) }) }) }) }),
-    /* @__PURE__ */ jsx(SidebarContent, { children: /* @__PURE__ */ jsx(MainNav, { items: DATA_SIDEBAR.navMain }) })
+    /* @__PURE__ */ jsxs(SidebarContent, { children: [
+      /* @__PURE__ */ jsx(MainNav, { items: DATA_SIDEBAR.navMain }),
+      /* @__PURE__ */ jsx(SecondaryNav, { items: DATA_SIDEBAR.navSecondary, className: "mt-auto" })
+    ] })
   ] });
 }
 function LayoutSidebar({ children }) {
+  const pathname = useLocation({
+    select: (location) => location.pathname
+  });
+  const isSignin = pathname === "/signin";
+  if (isSignin) {
+    return /* @__PURE__ */ jsx(Fragment, { children });
+  }
   return /* @__PURE__ */ jsxs(SidebarProvider, { defaultOpen: true, children: [
     /* @__PURE__ */ jsx(AppSidebar, {}),
     /* @__PURE__ */ jsxs(SidebarInset, { className: "border-2 flex h-[calc(100dvh-1rem)] overflow-hidden pb-3", children: [
@@ -868,8 +940,8 @@ const Toaster = ({ ...props }) => {
     }
   );
 };
-const appCss = "/assets/styles-Dk0zbcrP.css";
-const Route$4 = createRootRouteWithContext()({
+const appCss = "/assets/styles-DGo2wKJb.css";
+const Route$7 = createRootRouteWithContext()({
   head: () => ({
     meta: [
       {
@@ -902,12 +974,51 @@ function RootDocument({ children }) {
     ] })
   ] });
 }
-const $$splitComponentImporter$1 = () => import("./index-CRRHX_0A.mjs");
-const Route$3 = createFileRoute("/")({
-  component: lazyRouteComponent($$splitComponentImporter$1, "component")
+const $$splitComponentImporter$2 = () => import("./index-x3s7X4bH.mjs");
+const Route$6 = createFileRoute("/")({
+  component: lazyRouteComponent($$splitComponentImporter$2, "component")
+});
+const auth = betterAuth({
+  database: drizzleAdapter(db, {
+    provider: "sqlite"
+  }),
+  emailAndPassword: {
+    enabled: true
+  },
+  plugins: [username(), reactStartCookies()]
+});
+const createUserSc = z.object({
+  username: z.string().min(1),
+  password: z.string().min(1),
+  email: z.email().min(1),
+  name: z.string().min(1)
+});
+const Route$5 = createFileRoute("/api/users")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        try {
+          const body = await request.json();
+          const data = createUserSc.parse(body);
+          const newUser = await auth.api.signUpEmail({
+            body: {
+              email: data.email,
+              name: data.name,
+              password: data.password,
+              username: data.username
+            }
+          });
+          return json(newUser);
+        } catch (error) {
+          console.error(error);
+          throw new Error("Internal Server Error");
+        }
+      }
+    }
+  }
 });
 const handler = createRouteHandler({ router: uploadRouter });
-const Route$2 = createFileRoute("/api/uploadthing")({
+const Route$4 = createFileRoute("/api/uploadthing")({
   server: {
     handlers: {
       GET: handler,
@@ -1165,7 +1276,7 @@ const exportHaircutHistoryExcel = createServerFn({
   }
 });
 const CreateManyEmployeesSc = z.array(CreateEmployeeSc);
-const Route$1 = createFileRoute("/api/employee")({
+const Route$3 = createFileRoute("/api/employee")({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -1232,37 +1343,198 @@ const Route$1 = createFileRoute("/api/employee")({
     }
   }
 });
-const $$splitComponentImporter = () => import("./employee-C5Wjxuzb.mjs");
-const Route = createFileRoute("/(app)/employee")({
+function Label({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(
+    LabelPrimitive.Root,
+    {
+      "data-slot": "label",
+      className: cn(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        className
+      ),
+      ...props
+    }
+  );
+}
+function FieldGroup({ className, ...props }) {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      "data-slot": "field-group",
+      className: cn(
+        "group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 [&>[data-slot=field-group]]:gap-4",
+        className
+      ),
+      ...props
+    }
+  );
+}
+const fieldVariants = cva(
+  "group/field flex w-full gap-3 data-[invalid=true]:text-destructive",
+  {
+    variants: {
+      orientation: {
+        vertical: ["flex-col [&>*]:w-full [&>.sr-only]:w-auto"],
+        horizontal: [
+          "flex-row items-center",
+          "[&>[data-slot=field-label]]:flex-auto",
+          "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px"
+        ],
+        responsive: [
+          "flex-col [&>*]:w-full [&>.sr-only]:w-auto @md/field-group:flex-row @md/field-group:items-center @md/field-group:[&>*]:w-auto",
+          "@md/field-group:[&>[data-slot=field-label]]:flex-auto",
+          "@md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px"
+        ]
+      }
+    },
+    defaultVariants: {
+      orientation: "vertical"
+    }
+  }
+);
+function Field({
+  className,
+  orientation = "vertical",
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      role: "group",
+      "data-slot": "field",
+      "data-orientation": orientation,
+      className: cn(fieldVariants({ orientation }), className),
+      ...props
+    }
+  );
+}
+function FieldLabel({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(
+    Label,
+    {
+      "data-slot": "field-label",
+      className: cn(
+        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50",
+        "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&>*]:data-[slot=field]:p-4",
+        "has-data-[state=checked]:bg-primary/5 has-data-[state=checked]:border-primary dark:has-data-[state=checked]:bg-primary/10",
+        className
+      ),
+      ...props
+    }
+  );
+}
+function FieldError({
+  className,
+  children,
+  errors,
+  ...props
+}) {
+  const content = useMemo(() => {
+    if (children) {
+      return children;
+    }
+    if (!errors?.length) {
+      return null;
+    }
+    const uniqueErrors = [
+      ...new Map(errors.map((error) => [error?.message, error])).values()
+    ];
+    if (uniqueErrors?.length == 1) {
+      return uniqueErrors[0]?.message;
+    }
+    return /* @__PURE__ */ jsx("ul", { className: "ml-4 flex list-disc flex-col gap-1", children: uniqueErrors.map(
+      (error, index) => error?.message && /* @__PURE__ */ jsx("li", { children: error.message }, index)
+    ) });
+  }, [children, errors]);
+  if (!content) {
+    return null;
+  }
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      role: "alert",
+      "data-slot": "field-error",
+      className: cn("text-destructive text-sm font-normal", className),
+      ...props,
+      children: content
+    }
+  );
+}
+const $$splitComponentImporter$1 = () => import("./signin-DPqaCPnK.mjs");
+const Route$2 = createFileRoute("/(app)/signin")({
+  component: lazyRouteComponent($$splitComponentImporter$1, "component")
+});
+z.object({
+  username: z.string().min(1),
+  password: z.string().min(1)
+});
+const $$splitComponentImporter = () => import("./employee-BaHGyf3m.mjs");
+const Route$1 = createFileRoute("/(app)/employee")({
   component: lazyRouteComponent($$splitComponentImporter, "component")
 });
-const IndexRoute = Route$3.update({
+const Route = createFileRoute("/api/auth/$")({
+  server: {
+    handlers: {
+      GET: ({ request }) => {
+        return auth.handler(request);
+      },
+      POST: ({ request }) => {
+        return auth.handler(request);
+      }
+    }
+  }
+});
+const IndexRoute = Route$6.update({
   id: "/",
   path: "/",
-  getParentRoute: () => Route$4
+  getParentRoute: () => Route$7
 });
-const ApiUploadthingRoute = Route$2.update({
+const ApiUsersRoute = Route$5.update({
+  id: "/api/users",
+  path: "/api/users",
+  getParentRoute: () => Route$7
+});
+const ApiUploadthingRoute = Route$4.update({
   id: "/api/uploadthing",
   path: "/api/uploadthing",
-  getParentRoute: () => Route$4
+  getParentRoute: () => Route$7
 });
-const ApiEmployeeRoute = Route$1.update({
+const ApiEmployeeRoute = Route$3.update({
   id: "/api/employee",
   path: "/api/employee",
-  getParentRoute: () => Route$4
+  getParentRoute: () => Route$7
 });
-const appEmployeeRoute = Route.update({
+const appSigninRoute = Route$2.update({
+  id: "/(app)/signin",
+  path: "/signin",
+  getParentRoute: () => Route$7
+});
+const appEmployeeRoute = Route$1.update({
   id: "/(app)/employee",
   path: "/employee",
-  getParentRoute: () => Route$4
+  getParentRoute: () => Route$7
+});
+const ApiAuthSplatRoute = Route.update({
+  id: "/api/auth/$",
+  path: "/api/auth/$",
+  getParentRoute: () => Route$7
 });
 const rootRouteChildren = {
   IndexRoute,
   appEmployeeRoute,
+  appSigninRoute,
   ApiEmployeeRoute,
-  ApiUploadthingRoute
+  ApiUploadthingRoute,
+  ApiUsersRoute,
+  ApiAuthSplatRoute
 };
-const routeTree = Route$4._addFileChildren(rootRouteChildren)._addFileTypes();
+const routeTree = Route$7._addFileChildren(rootRouteChildren)._addFileTypes();
 const getRouter = () => {
   const rqContext = getContext();
   const router2 = createRouter({
@@ -1280,35 +1552,48 @@ const router = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   getRouter
 }, Symbol.toStringTag, { value: "Module" }));
-const routerDBSpapjr = /* @__PURE__ */ Object.freeze({
+const routerCqXxDb1S = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   B: Button,
   C: CreateEmployeeSc,
+  F: Field,
   S: Separator,
   U: UpdateEmployeeSc,
-  a: getPositions,
-  b: buttonVariants,
-  c: createEmployee,
-  d: deleteEmployee,
+  a: FieldLabel,
+  b: FieldError,
+  c: authClient,
+  d: FieldGroup,
   e: exportHaircutHistoryExcel,
-  g: getEmployees,
+  f: buttonVariants,
+  g: createEmployee,
+  h: deleteEmployee,
+  i: updateEmployee,
+  j: getEmployees,
+  k: getPositions,
   r: router,
-  u: updateEmployee
+  u: useSession
 });
 export {
   Button as B,
   CreateEmployeeSc as C,
+  Field as F,
+  LoaderCircle as L,
   Separator as S,
   UpdateEmployeeSc as U,
   X,
-  createEmployee as a,
-  buttonVariants as b,
+  FieldLabel as a,
+  FieldError as b,
   createLucideIcon as c,
-  deleteEmployee as d,
+  authClient as d,
   exportHaircutHistoryExcel as e,
-  ChevronRight as f,
+  FieldGroup as f,
   getEmployees as g,
-  getPositions as h,
-  routerDBSpapjr as r,
-  updateEmployee as u
+  createEmployee as h,
+  deleteEmployee as i,
+  updateEmployee as j,
+  buttonVariants as k,
+  ChevronRight as l,
+  getPositions as m,
+  routerCqXxDb1S as r,
+  useSession as u
 };

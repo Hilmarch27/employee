@@ -8,7 +8,7 @@ import { DataTableFacetedFilter } from '@/components/data-table/data-table-facet
 import { Button } from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
-import type { Employee, HaircutHistory } from '@/db/schema';
+import type { Employee, HaircutHistory, User } from '@/db/schema';
 import { cn } from '@/lib/utils';
 import { createBarcode } from '@/server-function/barcode-fn';
 import { getPositions } from '@/server-function/employee-fn';
@@ -19,12 +19,9 @@ interface DataTableToolbarProps<TData>
 	extends React.HTMLAttributes<HTMLDivElement> {
 	table: Table<TData>;
 }
-export function DataTableToolbar<TData extends Employee | HaircutHistory>({
-	table,
-	children,
-	className,
-	...props
-}: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<
+	TData extends Employee | HaircutHistory | User,
+>({ table, children, className, ...props }: DataTableToolbarProps<TData>) {
 	const postBarcode = useServerFn(createBarcode);
 	const queryClient = useQueryClient();
 

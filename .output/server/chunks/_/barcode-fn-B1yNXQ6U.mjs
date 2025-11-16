@@ -3,7 +3,7 @@ import { createCanvas, loadImage } from "canvas";
 import { gte, lte, sql, and, asc, desc, eq, lt } from "drizzle-orm";
 import QRCode from "qrcode";
 import z from "zod";
-import { h as haircutHistory, d as db, e as employees, u as utapi } from "./config-CJ6AisJq.mjs";
+import { h as haircutHistory, d as db, e as employees, u as utapi } from "./config-CZfDNatN.mjs";
 var XLSX = {};
 XLSX.version = "0.18.5";
 var current_ansi = 1252;
