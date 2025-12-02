@@ -1,6 +1,7 @@
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { scanBarcode } from '@/server-function/barcode-fn';
 export default function ScanDsb() {
 	const scanBarcodeFn = useServerFn(scanBarcode);
 	const queryClient = useQueryClient();
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const form = useForm({
 		defaultValues: {
@@ -19,7 +21,7 @@ export default function ScanDsb() {
 		},
 		validators: {
 			onSubmit: z.object({
-				id: z.string().min(1),
+				id: z.string().min(1, 'Scan ID tidak boleh kosong'),
 			}),
 		},
 		onSubmit: async ({ value }) => {
@@ -35,11 +37,24 @@ export default function ScanDsb() {
 			queryClient.invalidateQueries({ queryKey: ['haircut-history'] });
 			toast.success(data.message);
 			form.reset();
+			// Auto-focus kembali setelah scan berhasil
+			setTimeout(() => {
+				inputRef.current?.focus();
+			}, 100);
 		},
 		onError: (error) => {
 			toast.error(error.message);
+			// Auto-focus kembali setelah error untuk retry cepat
+			setTimeout(() => {
+				inputRef.current?.focus();
+			}, 100);
 		},
 	});
+
+	// Auto-focus pada mount dan setiap kali komponen di-render
+	useEffect(() => {
+		inputRef.current?.focus();
+	}, []);
 	return (
 		<Card>
 			<CardHeader>
@@ -62,9 +77,26 @@ export default function ScanDsb() {
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor={field.name}>Instansi</FieldLabel>
 										<Input
+											ref={inputRef}
 											value={field.state.value}
 											onChange={(e) => {
 												field.handleChange(e.target.value);
+											}}
+											onKeyDown={(e) => {
+												// Auto-submit ketika Enter ditekan (barcode scanner biasanya mengirim Enter)
+												if (e.key === 'Enter' && field.state.value.trim()) {
+													e.preventDefault();
+													form.handleSubmit();
+												}
+											}}
+											onBlur={() => {
+												// Kembalikan focus jika kehilangan focus (kecuali user klik button)
+												// Delay kecil untuk memastikan tidak konflik dengan klik button
+												setTimeout(() => {
+													if (document.activeElement?.tagName !== 'BUTTON') {
+														inputRef.current?.focus();
+													}
+												}, 100);
 											}}
 											autoFocus
 											placeholder="Scan ID Barcode..."

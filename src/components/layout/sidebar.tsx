@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
-import { Command, Home, LogOut, Users } from 'lucide-react';
+import { Command, Home, History, LogOut, Users } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import {
 	Sidebar,
@@ -28,6 +28,11 @@ export const DATA_SIDEBAR = {
 			name: 'Employee',
 			url: '/employee',
 			icon: Users,
+		},
+		{
+			name: 'History Haircut',
+			url: '/history',
+			icon: History,
 		},
 	],
 	navSecondary: [

@@ -252,7 +252,7 @@ export const getHaircutHistory = createServerFn({ method: 'GET' })
 					sql`${haircutHistory.employeeId} = ${employees.id}`,
 				)
 				.where(and(...filters))
-				.orderBy(asc(employees.position), desc(haircutHistory.haircutDate));
+				.orderBy(desc(haircutHistory.haircutDate));
 
 			// Format records
 			const formattedRecords = records.map((record) => {
@@ -287,3 +287,74 @@ export const getHaircutHistory = createServerFn({ method: 'GET' })
 			throw new Error('Gagal mengambil data history');
 		}
 	});
+
+export const getPreviewHaircut = createServerFn({ method: 'GET' }).handler(
+	async () => {
+		try {
+			// Filter per bulan (bulan ini)
+			const now = new Date();
+			const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+			const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+			// Atur ke awal dan akhir hari
+			currentMonthStart.setHours(0, 0, 0, 0);
+			nextMonthStart.setHours(0, 0, 0, 0);
+
+			// Query with join, sorted by haircutDate only
+			const records = await db
+				.select({
+					id: haircutHistory.id,
+					employeeId: haircutHistory.employeeId,
+					haircutDate: haircutHistory.haircutDate,
+					createdAt: haircutHistory.createdAt,
+					employeeName: employees.name,
+					employeeBadge: employees.badge,
+					employeePosition: employees.position,
+				})
+				.from(haircutHistory)
+				.innerJoin(
+					employees,
+					sql`${haircutHistory.employeeId} = ${employees.id}`,
+				)
+				.where(
+					and(
+						gte(haircutHistory.haircutDate, currentMonthStart),
+						lt(haircutHistory.haircutDate, nextMonthStart),
+					),
+				)
+				.orderBy(desc(haircutHistory.haircutDate));
+
+			// Format records
+			const formattedRecords = records.map((record) => {
+				const haircutDate = new Date(record.haircutDate);
+
+				return {
+					id: record.id,
+					employeeId: record.employeeId,
+					name: record.employeeName,
+					badge: record.employeeBadge,
+					position: record.employeePosition,
+					haircutDate: record.haircutDate,
+					formattedTime: haircutDate.toLocaleTimeString('id-ID', {
+						hour: '2-digit',
+						minute: '2-digit',
+						second: '2-digit',
+					}),
+					monthYear: haircutDate.toLocaleDateString('id-ID', {
+						month: 'long',
+						year: 'numeric',
+					}),
+					createdAt: record.createdAt,
+				};
+			});
+
+			return {
+				data: formattedRecords,
+				total: formattedRecords.length,
+			};
+		} catch (error) {
+			console.error('Error fetching preview haircut:', error);
+			throw new Error('Gagal mengambil data preview');
+		}
+	},
+);

@@ -131,9 +131,42 @@ export function DataTableHaircut({
 }) {
 	const exportExcelFn = useServerFn(exportHaircutHistoryExcel);
 
+	const columns = useMemo(() => {
+		return COLUMNS_HAIRCUT_HISTORY();
+	}, []);
+
+	const { table } = useClientTable({
+		defaultColumn: {
+			minSize: 160,
+		},
+		data,
+		columns,
+		getRowId: (originalRow) => originalRow.id,
+	});
+
 	const { mutateAsync } = useMutation({
 		mutationFn: async () => {
-			const response = await exportExcelFn({});
+			// Get date range filter from table state
+			const columnFilters = table.getState().columnFilters;
+			const dateFilter = columnFilters.find(
+				(filter) => filter.id === 'haircutDate',
+			);
+
+			// Extract range from filter value
+			let range: number[] | undefined;
+			if (dateFilter?.value && Array.isArray(dateFilter.value)) {
+				const [from, to] = dateFilter.value as [
+					number | undefined,
+					number | undefined,
+				];
+				if (from && to) {
+					range = [from, to];
+				}
+			}
+
+			const response = await exportExcelFn({
+				data: range ? { range } : undefined,
+			});
 			const blob = await response.blob();
 			return blob;
 		},
@@ -155,22 +188,9 @@ export function DataTableHaircut({
 		});
 	};
 
-	const columns = useMemo(() => {
-		return COLUMNS_HAIRCUT_HISTORY();
-	}, []);
-
-	const { table } = useClientTable({
-		defaultColumn: {
-			minSize: 160,
-		},
-		data,
-		columns,
-		getRowId: (originalRow) => originalRow.id,
-	});
-
 	return (
 		<div className="w-full">
-			<DataTable className="py-3 mt-10" table={table}>
+			<DataTable className="py-3" table={table}>
 				<DataTableToolbar table={table}>
 					{username === 'admin' && (
 						<Button
