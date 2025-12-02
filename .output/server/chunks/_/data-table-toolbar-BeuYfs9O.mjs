@@ -1,100 +1,56 @@
-import { c as createLucideIcon, B as Button, X, l as ChevronRight, m as getPositions, S as Separator, k as buttonVariants } from "./router-UttYZnds.mjs";
+import { e as createLucideIcon, B as Button, X, l as getPositions, S as Separator, m as ChevronRight, k as buttonVariants } from "./router-PksdRzJZ.mjs";
 import { jsxs, jsx, Fragment } from "react/jsx-runtime";
-import { useReactTable, getExpandedRowModel, getFacetedUniqueValues, getFacetedRowModel, getSortedRowModel, getPaginationRowModel, getFilteredRowModel, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
 import * as React from "react";
-import React__default, { useState } from "react";
+import React__default from "react";
+import { o as Table, T as TableHeader, b as TableRow, c as TableHead, h as DropdownMenu, j as DropdownMenuTrigger, k as DropdownMenuContent, l as DropdownMenuItem, d as TableBody, e as TableCell, f as DataTablePagination, u as useServerFn, p as DropdownMenuLabel, m as DropdownMenuSeparator, q as DropdownMenuCheckboxItem, C as Check, r as ChevronLeft, s as ChevronDown } from "./use-client-table-B4Wc_vXV.mjs";
 import { c as cn, b as formatDate } from "./config-CZfDNatN.mjs";
-import * as SelectPrimitive from "@radix-ui/react-select";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { useRouter, isRedirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { Command as Command$1 } from "cmdk";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { I as Input } from "./input-h-pL-VAR.mjs";
-import { b as createBarcode } from "./barcode-fn-B1yNXQ6U.mjs";
+import { d as createBarcode } from "./barcode-fn-C7viNX70.mjs";
 import { getDefaultClassNames, DayPicker } from "react-day-picker";
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-const __iconNode$h = [
+const __iconNode$9 = [
   ["path", { d: "M3 19V5", key: "rwsyhb" }],
   ["path", { d: "m13 6-6 6 6 6", key: "1yhaz7" }],
   ["path", { d: "M7 12h14", key: "uoisry" }]
 ];
-const ArrowLeftToLine = createLucideIcon("arrow-left-to-line", __iconNode$h);
-const __iconNode$g = [
+const ArrowLeftToLine = createLucideIcon("arrow-left-to-line", __iconNode$9);
+const __iconNode$8 = [
   ["path", { d: "M17 12H3", key: "8awo09" }],
   ["path", { d: "m11 18 6-6-6-6", key: "8c2y43" }],
   ["path", { d: "M21 5v14", key: "nzette" }]
 ];
-const ArrowRightToLine = createLucideIcon("arrow-right-to-line", __iconNode$g);
-const __iconNode$f = [
+const ArrowRightToLine = createLucideIcon("arrow-right-to-line", __iconNode$8);
+const __iconNode$7 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$f);
-const __iconNode$e = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$e);
-const __iconNode$d = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$d);
-const __iconNode$c = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$c);
-const __iconNode$b = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$b);
-const __iconNode$a = [
-  ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
-  ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }]
-];
-const ChevronsLeft = createLucideIcon("chevrons-left", __iconNode$a);
-const __iconNode$9 = [
-  ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
-  ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }]
-];
-const ChevronsRight = createLucideIcon("chevrons-right", __iconNode$9);
-const __iconNode$8 = [
-  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
-  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
-];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$8);
-const __iconNode$7 = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$7);
+const __iconNode$6 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M8 12h8", key: "1wcyev" }],
   ["path", { d: "M12 8v8", key: "napkw2" }]
 ];
-const CirclePlus = createLucideIcon("circle-plus", __iconNode$7);
-const __iconNode$6 = [
+const CirclePlus = createLucideIcon("circle-plus", __iconNode$6);
+const __iconNode$5 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$6);
-const __iconNode$5 = [
+const CircleX = createLucideIcon("circle-x", __iconNode$5);
+const __iconNode$4 = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "19", cy: "12", r: "1", key: "1wjl8i" }],
   ["circle", { cx: "5", cy: "12", r: "1", key: "1pcz8c" }]
 ];
-const Ellipsis = createLucideIcon("ellipsis", __iconNode$5);
-const __iconNode$4 = [
-  [
-    "path",
-    {
-      d: "M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49",
-      key: "ct8e1f"
-    }
-  ],
-  ["path", { d: "M14.084 14.158a3 3 0 0 1-4.242-4.242", key: "151rxh" }],
-  [
-    "path",
-    {
-      d: "M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143",
-      key: "13bj9a"
-    }
-  ],
-  ["path", { d: "m2 2 20 20", key: "1ooewy" }]
-];
-const EyeOff = createLucideIcon("eye-off", __iconNode$4);
+const Ellipsis = createLucideIcon("ellipsis", __iconNode$4);
 const __iconNode$3 = [
   ["path", { d: "M12 17v5", key: "bb1du9" }],
   ["path", { d: "M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89", key: "znwnzq" }],
@@ -126,444 +82,6 @@ const __iconNode = [
   ["path", { d: "M17 19H3", key: "z6ezky" }]
 ];
 const TextAlignStart = createLucideIcon("text-align-start", __iconNode);
-function useServerFn(serverFn) {
-  const router = useRouter();
-  return React.useCallback(
-    async (...args) => {
-      try {
-        const res = await serverFn(...args);
-        if (isRedirect(res)) {
-          throw res;
-        }
-        return res;
-      } catch (err) {
-        if (isRedirect(err)) {
-          err.options._fromLocation = router.state.location;
-          return router.navigate(router.resolveRedirect(err).options);
-        }
-        throw err;
-      }
-    },
-    [router, serverFn]
-  );
-}
-function DropdownMenu({
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(DropdownMenuPrimitive.Root, { "data-slot": "dropdown-menu", ...props });
-}
-function DropdownMenuTrigger({
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    DropdownMenuPrimitive.Trigger,
-    {
-      "data-slot": "dropdown-menu-trigger",
-      ...props
-    }
-  );
-}
-function DropdownMenuContent({
-  className,
-  sideOffset = 4,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(DropdownMenuPrimitive.Portal, { children: /* @__PURE__ */ jsx(
-    DropdownMenuPrimitive.Content,
-    {
-      "data-slot": "dropdown-menu-content",
-      sideOffset,
-      className: cn(
-        "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md",
-        className
-      ),
-      ...props
-    }
-  ) });
-}
-function DropdownMenuItem({
-  className,
-  inset,
-  variant = "default",
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    DropdownMenuPrimitive.Item,
-    {
-      "data-slot": "dropdown-menu-item",
-      "data-inset": inset,
-      "data-variant": variant,
-      className: cn(
-        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function DropdownMenuCheckboxItem({
-  className,
-  children,
-  checked,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxs(
-    DropdownMenuPrimitive.CheckboxItem,
-    {
-      "data-slot": "dropdown-menu-checkbox-item",
-      className: cn(
-        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      ),
-      checked,
-      ...props,
-      children: [
-        /* @__PURE__ */ jsx("span", { className: "pointer-events-none absolute left-2 flex size-3.5 items-center justify-center", children: /* @__PURE__ */ jsx(DropdownMenuPrimitive.ItemIndicator, { children: /* @__PURE__ */ jsx(Check, { className: "size-4" }) }) }),
-        children
-      ]
-    }
-  );
-}
-function DropdownMenuLabel({
-  className,
-  inset,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    DropdownMenuPrimitive.Label,
-    {
-      "data-slot": "dropdown-menu-label",
-      "data-inset": inset,
-      className: cn(
-        "px-2 py-1.5 text-sm font-medium data-[inset]:pl-8",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function DropdownMenuSeparator({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    DropdownMenuPrimitive.Separator,
-    {
-      "data-slot": "dropdown-menu-separator",
-      className: cn("bg-border -mx-1 my-1 h-px", className),
-      ...props
-    }
-  );
-}
-function DropdownMenuShortcut({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    "span",
-    {
-      "data-slot": "dropdown-menu-shortcut",
-      className: cn(
-        "text-muted-foreground ml-auto text-xs tracking-widest",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function Table({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "table-container",
-      className: "relative w-full overflow-x-auto",
-      children: /* @__PURE__ */ jsx(
-        "table",
-        {
-          "data-slot": "table",
-          className: cn("w-full caption-bottom text-sm", className),
-          ...props
-        }
-      )
-    }
-  );
-}
-function TableHeader({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "thead",
-    {
-      "data-slot": "table-header",
-      className: cn("[&_tr]:border-b", className),
-      ...props
-    }
-  );
-}
-function TableBody({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "tbody",
-    {
-      "data-slot": "table-body",
-      className: cn("[&_tr:last-child]:border-0", className),
-      ...props
-    }
-  );
-}
-function TableRow({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "tr",
-    {
-      "data-slot": "table-row",
-      className: cn(
-        "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function TableHead({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "th",
-    {
-      "data-slot": "table-head",
-      className: cn(
-        "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function TableCell({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "td",
-    {
-      "data-slot": "table-cell",
-      className: cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function Select({
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(SelectPrimitive.Root, { "data-slot": "select", ...props });
-}
-function SelectValue({
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(SelectPrimitive.Value, { "data-slot": "select-value", ...props });
-}
-function SelectTrigger({
-  className,
-  size = "default",
-  children,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxs(
-    SelectPrimitive.Trigger,
-    {
-      "data-slot": "select-trigger",
-      "data-size": size,
-      className: cn(
-        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      ),
-      ...props,
-      children: [
-        children,
-        /* @__PURE__ */ jsx(SelectPrimitive.Icon, { asChild: true, children: /* @__PURE__ */ jsx(ChevronDown, { className: "size-4 opacity-50" }) })
-      ]
-    }
-  );
-}
-function SelectContent({
-  className,
-  children,
-  position = "popper",
-  align = "center",
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(SelectPrimitive.Portal, { children: /* @__PURE__ */ jsxs(
-    SelectPrimitive.Content,
-    {
-      "data-slot": "select-content",
-      className: cn(
-        "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
-        position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
-        className
-      ),
-      position,
-      align,
-      ...props,
-      children: [
-        /* @__PURE__ */ jsx(SelectScrollUpButton, {}),
-        /* @__PURE__ */ jsx(
-          SelectPrimitive.Viewport,
-          {
-            className: cn(
-              "p-1",
-              position === "popper" && "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1"
-            ),
-            children
-          }
-        ),
-        /* @__PURE__ */ jsx(SelectScrollDownButton, {})
-      ]
-    }
-  ) });
-}
-function SelectItem({
-  className,
-  children,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxs(
-    SelectPrimitive.Item,
-    {
-      "data-slot": "select-item",
-      className: cn(
-        "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
-        className
-      ),
-      ...props,
-      children: [
-        /* @__PURE__ */ jsx("span", { className: "absolute right-2 flex size-3.5 items-center justify-center", children: /* @__PURE__ */ jsx(SelectPrimitive.ItemIndicator, { children: /* @__PURE__ */ jsx(Check, { className: "size-4" }) }) }),
-        /* @__PURE__ */ jsx(SelectPrimitive.ItemText, { children })
-      ]
-    }
-  );
-}
-function SelectScrollUpButton({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    SelectPrimitive.ScrollUpButton,
-    {
-      "data-slot": "select-scroll-up-button",
-      className: cn(
-        "flex cursor-default items-center justify-center py-1",
-        className
-      ),
-      ...props,
-      children: /* @__PURE__ */ jsx(ChevronUp, { className: "size-4" })
-    }
-  );
-}
-function SelectScrollDownButton({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ jsx(
-    SelectPrimitive.ScrollDownButton,
-    {
-      "data-slot": "select-scroll-down-button",
-      className: cn(
-        "flex cursor-default items-center justify-center py-1",
-        className
-      ),
-      ...props,
-      children: /* @__PURE__ */ jsx(ChevronDown, { className: "size-4" })
-    }
-  );
-}
-function DataTablePagination({
-  table,
-  pageSizeOptions = [10, 20, 30, 40, 50, 100]
-}) {
-  return /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between px-2", children: [
-    /* @__PURE__ */ jsxs("div", { className: "flex-1 text-sm text-muted-foreground", children: [
-      table.getFilteredSelectedRowModel().rows.length,
-      " of",
-      " ",
-      table.getFilteredRowModel().rows.length,
-      " row(s) selected."
-    ] }),
-    /* @__PURE__ */ jsxs("div", { className: "flex items-center space-x-6 lg:space-x-8", children: [
-      /* @__PURE__ */ jsxs("div", { className: "flex items-center space-x-2", children: [
-        /* @__PURE__ */ jsx("p", { className: "text-sm font-medium", children: "Rows per page" }),
-        /* @__PURE__ */ jsxs(
-          Select,
-          {
-            value: `${table.getState().pagination.pageSize}`,
-            onValueChange: (value) => {
-              table.setPageSize(Number(value));
-            },
-            children: [
-              /* @__PURE__ */ jsx(SelectTrigger, { size: "sm", className: "w-[70px]", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: table.getState().pagination.pageSize }) }),
-              /* @__PURE__ */ jsx(SelectContent, { side: "top", className: "min-w-[70px]", children: pageSizeOptions.map((pageSize) => /* @__PURE__ */ jsx(SelectItem, { value: `${pageSize}`, children: pageSize }, pageSize)) })
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "flex w-[100px] items-center justify-center text-sm font-medium", children: [
-        "Page ",
-        table.getState().pagination.pageIndex + 1,
-        " of",
-        " ",
-        table.getPageCount()
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "flex items-center space-x-2", children: [
-        /* @__PURE__ */ jsxs(
-          Button,
-          {
-            variant: "outline",
-            className: "hidden h-8 w-8 p-0 lg:flex",
-            onClick: () => table.setPageIndex(0),
-            disabled: !table.getCanPreviousPage(),
-            children: [
-              /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Go to first page" }),
-              /* @__PURE__ */ jsx(ChevronsLeft, {})
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxs(
-          Button,
-          {
-            variant: "outline",
-            className: "h-8 w-8 p-0",
-            onClick: () => table.previousPage(),
-            disabled: !table.getCanPreviousPage(),
-            children: [
-              /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Go to previous page" }),
-              /* @__PURE__ */ jsx(ChevronLeft, {})
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxs(
-          Button,
-          {
-            variant: "outline",
-            className: "h-8 w-8 p-0",
-            onClick: () => table.nextPage(),
-            disabled: !table.getCanNextPage(),
-            children: [
-              /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Go to next page" }),
-              /* @__PURE__ */ jsx(ChevronRight, {})
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxs(
-          Button,
-          {
-            variant: "outline",
-            className: "hidden h-8 w-8 p-0 lg:flex",
-            onClick: () => table.setPageIndex(table.getPageCount() - 1),
-            disabled: !table.getCanNextPage(),
-            children: [
-              /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Go to last page" }),
-              /* @__PURE__ */ jsx(ChevronsRight, {})
-            ]
-          }
-        )
-      ] })
-    ] })
-  ] });
-}
 function DataTable({
   table,
   onRowClick,
@@ -600,7 +118,7 @@ function DataTable({
               TableHead,
               {
                 colSpan: header.colSpan,
-                className: "[&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/90 relative h-10 truncate  data-pinned:backdrop-blur-xs [&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-l first:rounded-tl-md last:rounded-tr-md",
+                className: "[&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/90 relative h-10 truncate data-pinned:backdrop-blur-xs [&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-l first:rounded-tl-md last:rounded-tr-md",
                 style: { ...getPinningStyles(column, header) },
                 "data-pinned": isPinned || void 0,
                 "data-last-col": isLastLeftPinned ? "left" : isFirstRightPinned ? "right" : void 0,
@@ -742,83 +260,6 @@ function DataTable({
       ]
     }
   );
-}
-function DataTableColumnHeader({
-  column,
-  title,
-  className,
-  ...props
-}) {
-  if (!column.getCanSort() && !column.getCanHide()) {
-    return /* @__PURE__ */ jsx("div", { className: cn(className), children: title });
-  }
-  return /* @__PURE__ */ jsxs(DropdownMenu, { children: [
-    /* @__PURE__ */ jsxs(
-      DropdownMenuTrigger,
-      {
-        className: cn(
-          "-ml-1.5 flex h-8 items-center gap-1.5 rounded-sm px-2 py-1.5 hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring data-[state=open]:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
-          className
-        ),
-        ...props,
-        children: [
-          title,
-          column.getCanSort() && (column.getIsSorted() === "desc" ? /* @__PURE__ */ jsx(ChevronDown, {}) : column.getIsSorted() === "asc" ? /* @__PURE__ */ jsx(ChevronUp, {}) : /* @__PURE__ */ jsx(ChevronsUpDown, {}))
-        ]
-      }
-    ),
-    /* @__PURE__ */ jsxs(DropdownMenuContent, { align: "start", side: "right", className: "min-w-auto", children: [
-      column.getCanSort() && /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsxs(
-          DropdownMenuCheckboxItem,
-          {
-            className: "relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground",
-            checked: column.getIsSorted() === "asc",
-            onClick: () => column.toggleSorting(false),
-            children: [
-              /* @__PURE__ */ jsx(ChevronUp, {}),
-              "Asc"
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxs(
-          DropdownMenuCheckboxItem,
-          {
-            className: "relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground",
-            checked: column.getIsSorted() === "desc",
-            onClick: () => column.toggleSorting(true),
-            children: [
-              /* @__PURE__ */ jsx(ChevronDown, {}),
-              "Desc"
-            ]
-          }
-        ),
-        column.getIsSorted() && /* @__PURE__ */ jsxs(
-          DropdownMenuItem,
-          {
-            className: "pl-2 [&_svg]:text-muted-foreground",
-            onClick: () => column.clearSorting(),
-            children: [
-              /* @__PURE__ */ jsx(X, {}),
-              "Reset"
-            ]
-          }
-        )
-      ] }),
-      column.getCanHide() && /* @__PURE__ */ jsxs(
-        DropdownMenuCheckboxItem,
-        {
-          className: "relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground",
-          checked: !column.getIsVisible(),
-          onClick: () => column.toggleVisibility(false),
-          children: [
-            /* @__PURE__ */ jsx(EyeOff, {}),
-            "Hide"
-          ]
-        }
-      )
-    ] })
-  ] });
 }
 const badgeVariants = cva(
   "inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
@@ -1705,119 +1146,10 @@ function DataTableToolbarFilter({
     return onFilterRender();
   }
 }
-function useClientTable(props) {
-  const {
-    columns,
-    data,
-    initialState,
-    getRowCanExpand,
-    rowActions,
-    ...tableProps
-  } = props;
-  const [rowSelection, setRowSelection] = useState(
-    initialState?.rowSelection ?? {}
-  );
-  const [columnVisibility, setColumnVisibility] = useState(
-    initialState?.columnVisibility ?? {}
-  );
-  const [columnFilters, setColumnFilters] = useState(
-    initialState?.columnFilters ?? []
-  );
-  const [sorting, setSorting] = useState(
-    initialState?.sorting ?? []
-  );
-  const [expanded, setExpanded] = useState(
-    initialState?.expanded ?? {}
-  );
-  function handleRowActions(payload) {
-    if (!rowActions) throw new Error("rowActions function is required");
-    rowActions(payload);
-  }
-  const table = useReactTable({
-    ...tableProps,
-    initialState,
-    data,
-    columns,
-    state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters,
-      expanded
-    },
-    defaultColumn: {
-      ...tableProps.defaultColumn,
-      enableColumnFilter: false
-    },
-    columnResizeMode: "onChange",
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onExpandedChange: setExpanded,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getExpandedRowModel: getExpandedRowModel(),
-    getRowCanExpand,
-    meta: {
-      rowActions: handleRowActions
-    }
-  });
-  return { table };
-}
-function normalizeStartOfDay(time) {
-  const d = new Date(time);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime();
-}
-function normalizeEndOfDay(time) {
-  const d = new Date(time);
-  d.setHours(23, 59, 59, 999);
-  return d.getTime();
-}
-function dateRange(row, columnId, value) {
-  const rowTime = new Date(row.getValue(columnId)).getTime();
-  const [startRaw, endRaw] = Array.isArray(value) ? value : [void 0, void 0];
-  const startTime = typeof startRaw === "number" ? normalizeStartOfDay(startRaw) : void 0;
-  const endTime = typeof endRaw === "number" ? normalizeEndOfDay(endRaw) : void 0;
-  if ((startTime || endTime) && rowTime === void 0) return false;
-  if (startTime !== void 0 && endTime === void 0) {
-    return rowTime >= startTime;
-  }
-  if (startTime === void 0 && endTime !== void 0) {
-    return rowTime <= endTime;
-  }
-  if (startTime !== void 0 && endTime !== void 0) {
-    return rowTime >= startTime && rowTime <= endTime;
-  }
-  return true;
-}
-function includesTrimmed(row, columnId, filterValue) {
-  const cellValue = String(row.getValue(columnId) ?? "").trim().toLowerCase();
-  const inputValue = filterValue.trim().toLowerCase();
-  return cellValue.includes(inputValue);
-}
 export {
   Calendar$1 as C,
   DataTable as D,
   Ellipsis as E,
   TextAlignStart as T,
-  useClientTable as a,
-  DataTableToolbar as b,
-  DataTableColumnHeader as c,
-  dateRange as d,
-  Check as e,
-  DropdownMenu as f,
-  DropdownMenuTrigger as g,
-  DropdownMenuContent as h,
-  includesTrimmed as i,
-  DropdownMenuItem as j,
-  DropdownMenuSeparator as k,
-  DropdownMenuShortcut as l,
-  useServerFn as u
+  DataTableToolbar as a
 };

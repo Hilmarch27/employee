@@ -1,6 +1,6 @@
 import { a as createServerRpc, c as createServerFn } from "./server.mjs";
 import { createCanvas, loadImage } from "canvas";
-import { eq, gte, lte, sql, and, asc, desc, lt } from "drizzle-orm";
+import { eq, gte, lte, sql, and, desc, lt } from "drizzle-orm";
 import QRCode from "qrcode";
 import z from "zod";
 import { u as utapi, d as db, e as employees, h as haircutHistory } from "./config-CZfDNatN.mjs";
@@ -192,7 +192,7 @@ const getHaircutHistory = createServerFn({
       employeeName: employees.name,
       employeeBadge: employees.badge,
       employeePosition: employees.position
-    }).from(haircutHistory).innerJoin(employees, sql`${haircutHistory.employeeId} = ${employees.id}`).where(and(...filters)).orderBy(asc(employees.position), desc(haircutHistory.haircutDate));
+    }).from(haircutHistory).innerJoin(employees, sql`${haircutHistory.employeeId} = ${employees.id}`).where(and(...filters)).orderBy(desc(haircutHistory.haircutDate));
     const formattedRecords = records.map((record) => {
       const haircutDate = new Date(record.haircutDate);
       return {
@@ -223,8 +223,60 @@ const getHaircutHistory = createServerFn({
     throw new Error("Gagal mengambil data history");
   }
 });
+const getPreviewHaircut_createServerFn_handler = createServerRpc("bdce5e45ae836926e7e85a5c47cdc7f11198570ab5e8029e62f8dbafb181032b", (opts, signal) => {
+  return getPreviewHaircut.__executeServer(opts, signal);
+});
+const getPreviewHaircut = createServerFn({
+  method: "GET"
+}).handler(getPreviewHaircut_createServerFn_handler, async () => {
+  try {
+    const now = /* @__PURE__ */ new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    currentMonthStart.setHours(0, 0, 0, 0);
+    nextMonthStart.setHours(0, 0, 0, 0);
+    const records = await db.select({
+      id: haircutHistory.id,
+      employeeId: haircutHistory.employeeId,
+      haircutDate: haircutHistory.haircutDate,
+      createdAt: haircutHistory.createdAt,
+      employeeName: employees.name,
+      employeeBadge: employees.badge,
+      employeePosition: employees.position
+    }).from(haircutHistory).innerJoin(employees, sql`${haircutHistory.employeeId} = ${employees.id}`).where(and(gte(haircutHistory.haircutDate, currentMonthStart), lt(haircutHistory.haircutDate, nextMonthStart))).orderBy(desc(haircutHistory.haircutDate));
+    const formattedRecords = records.map((record) => {
+      const haircutDate = new Date(record.haircutDate);
+      return {
+        id: record.id,
+        employeeId: record.employeeId,
+        name: record.employeeName,
+        badge: record.employeeBadge,
+        position: record.employeePosition,
+        haircutDate: record.haircutDate,
+        formattedTime: haircutDate.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
+        }),
+        monthYear: haircutDate.toLocaleDateString("id-ID", {
+          month: "long",
+          year: "numeric"
+        }),
+        createdAt: record.createdAt
+      };
+    });
+    return {
+      data: formattedRecords,
+      total: formattedRecords.length
+    };
+  } catch (error) {
+    console.error("Error fetching preview haircut:", error);
+    throw new Error("Gagal mengambil data preview");
+  }
+});
 export {
   createBarcode_createServerFn_handler,
   getHaircutHistory_createServerFn_handler,
+  getPreviewHaircut_createServerFn_handler,
   scanBarcode_createServerFn_handler
 };

@@ -1,21 +1,19 @@
 import { jsx, jsxs } from "react/jsx-runtime";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Navigate } from "@tanstack/react-router";
-import { u as useServerFn, a as useClientTable, D as DataTable, b as DataTableToolbar, i as includesTrimmed, T as TextAlignStart, d as dateRange, C as Calendar, c as DataTableColumnHeader } from "./use-client-table-CxovFAfT.mjs";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
-import z from "zod";
-import { c as createLucideIcon, u as useSession, L as LoaderCircle, F as Field, a as FieldLabel, b as FieldError, B as Button, e as exportHaircutHistoryExcel } from "./router-UttYZnds.mjs";
-import { C as Card, a as CardHeader, b as CardTitle, c as CardContent } from "./card-fDatpBMZ.mjs";
-import { I as Input } from "./input-h-pL-VAR.mjs";
-import { a as getHaircutHistory, s as scanBarcode } from "./barcode-fn-B1yNXQ6U.mjs";
+import { u as useServerFn, a as useClientTable, i as includesTrimmed, g as dateRange, D as DataTableColumnHeader } from "./use-client-table-B4Wc_vXV.mjs";
 import { useMemo } from "react";
-import "@tanstack/react-table";
+import { toast } from "sonner";
+import { D as DataTable, a as DataTableToolbar, T as TextAlignStart, C as Calendar } from "./data-table-toolbar-BeuYfs9O.mjs";
+import { e as createLucideIcon, u as useSession, L as LoaderCircle, f as exportHaircutHistoryExcel, B as Button } from "./router-PksdRzJZ.mjs";
+import { a as getHaircutHistory } from "./barcode-fn-C7viNX70.mjs";
+import "@radix-ui/react-dropdown-menu";
 import "./config-CZfDNatN.mjs";
 import "@libsql/client";
 import "dotenv";
 import "drizzle-orm/libsql";
 import "@t3-oss/env-core";
+import "zod";
 import "drizzle-orm";
 import "drizzle-orm/sqlite-core";
 import "clsx";
@@ -23,12 +21,13 @@ import "nanoid";
 import "tailwind-merge";
 import "uploadthing/server";
 import "@radix-ui/react-select";
+import "@tanstack/react-table";
 import "@radix-ui/react-slot";
 import "class-variance-authority";
 import "cmdk";
 import "@radix-ui/react-popover";
+import "./input-h-pL-VAR.mjs";
 import "react-day-picker";
-import "@radix-ui/react-dropdown-menu";
 import "@tanstack/react-router-ssr-query";
 import "@radix-ui/react-separator";
 import "@radix-ui/react-dialog";
@@ -66,70 +65,6 @@ const __iconNode = [
   ["path", { d: "M14 17h2", key: "10kma7" }]
 ];
 const FileSpreadsheet = createLucideIcon("file-spreadsheet", __iconNode);
-function ScanDsb() {
-  const scanBarcodeFn = useServerFn(scanBarcode);
-  const queryClient = useQueryClient();
-  const form = useForm({
-    defaultValues: {
-      id: ""
-    },
-    validators: {
-      onSubmit: z.object({
-        id: z.string().min(1)
-      })
-    },
-    onSubmit: async ({ value }) => {
-      toast.promise(mutateAsync({ data: value }), {
-        loading: "Scanning..."
-      });
-    }
-  });
-  const { mutateAsync } = useMutation({
-    mutationFn: scanBarcodeFn,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["haircut-history"] });
-      toast.success(data.message);
-      form.reset();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    }
-  });
-  return /* @__PURE__ */ jsxs(Card, { children: [
-    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { children: "Scan Barcode" }) }),
-    /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsxs(
-      "form",
-      {
-        onSubmit: (e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        },
-        className: "flex gap-2 items-center w-full",
-        children: [
-          /* @__PURE__ */ jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsx(form.Field, { name: "id", children: (field) => {
-            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-            return /* @__PURE__ */ jsxs(Field, { "data-invalid": isInvalid, children: [
-              /* @__PURE__ */ jsx(FieldLabel, { htmlFor: field.name, children: "Instansi" }),
-              /* @__PURE__ */ jsx(
-                Input,
-                {
-                  value: field.state.value,
-                  onChange: (e) => {
-                    field.handleChange(e.target.value);
-                  },
-                  autoFocus: true,
-                  placeholder: "Scan ID Barcode..."
-                }
-              ),
-              isInvalid && /* @__PURE__ */ jsx(FieldError, { errors: field.state.meta.errors })
-            ] });
-          } }) }),
-          /* @__PURE__ */ jsx(form.Subscribe, { selector: (state) => state.isSubmitting, children: (isSubmitting) => /* @__PURE__ */ jsx(Button, { type: "submit", disabled: isSubmitting, className: "mt-7.5", children: isSubmitting ? "Scanning..." : "Scan" }) })
-        ]
-      }
-    ) })
-  ] });
-}
 function COLUMNS_HAIRCUT_HISTORY() {
   return [
     {
@@ -219,9 +154,33 @@ function DataTableHaircut({
   username
 }) {
   const exportExcelFn = useServerFn(exportHaircutHistoryExcel);
+  const columns = useMemo(() => {
+    return COLUMNS_HAIRCUT_HISTORY();
+  }, []);
+  const { table } = useClientTable({
+    defaultColumn: {
+      minSize: 160
+    },
+    data,
+    columns,
+    getRowId: (originalRow) => originalRow.id
+  });
   const { mutateAsync } = useMutation({
     mutationFn: async () => {
-      const response = await exportExcelFn({});
+      const columnFilters = table.getState().columnFilters;
+      const dateFilter = columnFilters.find(
+        (filter) => filter.id === "haircutDate"
+      );
+      let range;
+      if (dateFilter?.value && Array.isArray(dateFilter.value)) {
+        const [from, to] = dateFilter.value;
+        if (from && to) {
+          range = [from, to];
+        }
+      }
+      const response = await exportExcelFn({
+        data: range ? { range } : void 0
+      });
       const blob = await response.blob();
       return blob;
     },
@@ -241,18 +200,7 @@ function DataTableHaircut({
       error: "Failed to export Excel"
     });
   };
-  const columns = useMemo(() => {
-    return COLUMNS_HAIRCUT_HISTORY();
-  }, []);
-  const { table } = useClientTable({
-    defaultColumn: {
-      minSize: 160
-    },
-    data,
-    columns,
-    getRowId: (originalRow) => originalRow.id
-  });
-  return /* @__PURE__ */ jsx("div", { className: "w-full", children: /* @__PURE__ */ jsx(DataTable, { className: "py-3 mt-10", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: username === "admin" && /* @__PURE__ */ jsxs(
+  return /* @__PURE__ */ jsx("div", { className: "w-full", children: /* @__PURE__ */ jsx(DataTable, { className: "py-3", table, children: /* @__PURE__ */ jsx(DataTableToolbar, { table, children: username === "admin" && /* @__PURE__ */ jsxs(
     Button,
     {
       variant: "outline",
@@ -266,7 +214,7 @@ function DataTableHaircut({
     }
   ) }) }) });
 }
-function App() {
+function RouteComponent() {
   const getData = useServerFn(getHaircutHistory);
   const {
     data: history,
@@ -282,11 +230,8 @@ function App() {
   if (isPending) {
     return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen", children: /* @__PURE__ */ jsx(LoaderCircle, { className: "size-10 animate-spin" }) });
   }
-  return !session ? /* @__PURE__ */ jsx(Navigate, { to: "/signin" }) : /* @__PURE__ */ jsxs("div", { className: "flex flex-col justify-between pe-5", children: [
-    /* @__PURE__ */ jsx(ScanDsb, {}),
-    isLoading ? /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen", children: /* @__PURE__ */ jsx(LoaderCircle, { className: "size-10 animate-spin" }) }) : /* @__PURE__ */ jsx(DataTableHaircut, { username: session?.user.username || "", data: history?.data || [] })
-  ] });
+  return !session ? /* @__PURE__ */ jsx(Navigate, { to: "/signin" }) : isLoading ? /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen", children: /* @__PURE__ */ jsx(LoaderCircle, { className: "size-10 animate-spin" }) }) : /* @__PURE__ */ jsx(DataTableHaircut, { username: session?.user.username || "", data: history?.data || [] });
 }
 export {
-  App as component
+  RouteComponent as component
 };

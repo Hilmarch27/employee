@@ -22,7 +22,7 @@ import { reactStartCookies } from "better-auth/react-start";
 import { j as json, c as createServerFn, g as getResponseHeaders, s as setResponseHeaders } from "./server.mjs";
 import { createRouteHandler } from "uploadthing/server";
 import { sql, desc, count, eq } from "drizzle-orm";
-import { c as createSsrRpc, g as genQRCode, a as getHaircutHistory, u as utils, w as writeSync } from "./barcode-fn-B1yNXQ6U.mjs";
+import { c as createSsrRpc, a as getHaircutHistory, u as utils, w as writeSync, g as genQRCode } from "./barcode-fn-C7viNX70.mjs";
 import * as LabelPrimitive from "@radix-ui/react-label";
 const toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 const toCamelCase = (string) => string.replace(
@@ -99,20 +99,26 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$b = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$b);
-const __iconNode$a = [
+const __iconNode$c = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$c);
+const __iconNode$b = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$a);
-const __iconNode$9 = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$b);
+const __iconNode$a = [
   [
     "path",
     { d: "M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3", key: "11bfej" }
   ]
 ];
-const Command = createLucideIcon("command", __iconNode$9);
+const Command = createLucideIcon("command", __iconNode$a);
+const __iconNode$9 = [
+  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
+  ["path", { d: "M3 3v5h5", key: "1xhq8a" }],
+  ["path", { d: "M12 7v5l4 2", key: "1fdv2h" }]
+];
+const History = createLucideIcon("history", __iconNode$9);
 const __iconNode$8 = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
@@ -839,6 +845,11 @@ const DATA_SIDEBAR = {
       name: "Employee",
       url: "/employee",
       icon: Users
+    },
+    {
+      name: "History Haircut",
+      url: "/history",
+      icon: History
     }
   ],
   navSecondary: [
@@ -940,8 +951,8 @@ const Toaster = ({ ...props }) => {
     }
   );
 };
-const appCss = "/assets/styles-DGo2wKJb.css";
-const Route$7 = createRootRouteWithContext()({
+const appCss = "/assets/styles-Ds5SVMlp.css";
+const Route$8 = createRootRouteWithContext()({
   head: () => ({
     meta: [
       {
@@ -974,9 +985,9 @@ function RootDocument({ children }) {
     ] })
   ] });
 }
-const $$splitComponentImporter$2 = () => import("./index-CbKe7au8.mjs");
-const Route$6 = createFileRoute("/")({
-  component: lazyRouteComponent($$splitComponentImporter$2, "component")
+const $$splitComponentImporter$3 = () => import("./index-Cbg1tp0j.mjs");
+const Route$7 = createFileRoute("/")({
+  component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
 const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -993,7 +1004,7 @@ const createUserSc = z.object({
   email: z.email().min(1),
   name: z.string().min(1)
 });
-const Route$5 = createFileRoute("/api/users")({
+const Route$6 = createFileRoute("/api/users")({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -1018,7 +1029,7 @@ const Route$5 = createFileRoute("/api/users")({
   }
 });
 const handler = createRouteHandler({ router: uploadRouter });
-const Route$4 = createFileRoute("/api/uploadthing")({
+const Route$5 = createFileRoute("/api/uploadthing")({
   server: {
     handlers: {
       GET: handler,
@@ -1276,7 +1287,7 @@ const exportHaircutHistoryExcel = createServerFn({
   }
 });
 const CreateManyEmployeesSc = z.array(CreateEmployeeSc);
-const Route$3 = createFileRoute("/api/employee")({
+const Route$4 = createFileRoute("/api/employee")({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -1466,15 +1477,19 @@ function FieldError({
     }
   );
 }
-const $$splitComponentImporter$1 = () => import("./signin-Dd0NYxBm.mjs");
-const Route$2 = createFileRoute("/(app)/signin")({
-  component: lazyRouteComponent($$splitComponentImporter$1, "component")
+const $$splitComponentImporter$2 = () => import("./signin-BD-y_DRt.mjs");
+const Route$3 = createFileRoute("/(app)/signin")({
+  component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
 z.object({
   username: z.string().min(1),
   password: z.string().min(1)
 });
-const $$splitComponentImporter = () => import("./employee-xs6WVl-T.mjs");
+const $$splitComponentImporter$1 = () => import("./history-sgk_mvaV.mjs");
+const Route$2 = createFileRoute("/(app)/history")({
+  component: lazyRouteComponent($$splitComponentImporter$1, "component")
+});
+const $$splitComponentImporter = () => import("./employee-Ctz8mg9m.mjs");
 const Route$1 = createFileRoute("/(app)/employee")({
   component: lazyRouteComponent($$splitComponentImporter, "component")
 });
@@ -1490,51 +1505,57 @@ const Route = createFileRoute("/api/auth/$")({
     }
   }
 });
-const IndexRoute = Route$6.update({
+const IndexRoute = Route$7.update({
   id: "/",
   path: "/",
-  getParentRoute: () => Route$7
+  getParentRoute: () => Route$8
 });
-const ApiUsersRoute = Route$5.update({
+const ApiUsersRoute = Route$6.update({
   id: "/api/users",
   path: "/api/users",
-  getParentRoute: () => Route$7
+  getParentRoute: () => Route$8
 });
-const ApiUploadthingRoute = Route$4.update({
+const ApiUploadthingRoute = Route$5.update({
   id: "/api/uploadthing",
   path: "/api/uploadthing",
-  getParentRoute: () => Route$7
+  getParentRoute: () => Route$8
 });
-const ApiEmployeeRoute = Route$3.update({
+const ApiEmployeeRoute = Route$4.update({
   id: "/api/employee",
   path: "/api/employee",
-  getParentRoute: () => Route$7
+  getParentRoute: () => Route$8
 });
-const appSigninRoute = Route$2.update({
+const appSigninRoute = Route$3.update({
   id: "/(app)/signin",
   path: "/signin",
-  getParentRoute: () => Route$7
+  getParentRoute: () => Route$8
+});
+const appHistoryRoute = Route$2.update({
+  id: "/(app)/history",
+  path: "/history",
+  getParentRoute: () => Route$8
 });
 const appEmployeeRoute = Route$1.update({
   id: "/(app)/employee",
   path: "/employee",
-  getParentRoute: () => Route$7
+  getParentRoute: () => Route$8
 });
 const ApiAuthSplatRoute = Route.update({
   id: "/api/auth/$",
   path: "/api/auth/$",
-  getParentRoute: () => Route$7
+  getParentRoute: () => Route$8
 });
 const rootRouteChildren = {
   IndexRoute,
   appEmployeeRoute,
+  appHistoryRoute,
   appSigninRoute,
   ApiEmployeeRoute,
   ApiUploadthingRoute,
   ApiUsersRoute,
   ApiAuthSplatRoute
 };
-const routeTree = Route$7._addFileChildren(rootRouteChildren)._addFileTypes();
+const routeTree = Route$8._addFileChildren(rootRouteChildren)._addFileTypes();
 const getRouter = () => {
   const rqContext = getContext();
   const router2 = createRouter({
@@ -1552,7 +1573,7 @@ const router = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   getRouter
 }, Symbol.toStringTag, { value: "Module" }));
-const routerUttYZnds = /* @__PURE__ */ Object.freeze({
+const routerPksdRzJZ = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   B: Button,
   C: CreateEmployeeSc,
@@ -1583,17 +1604,17 @@ export {
   X,
   FieldLabel as a,
   FieldError as b,
-  createLucideIcon as c,
-  authClient as d,
-  exportHaircutHistoryExcel as e,
-  FieldGroup as f,
+  authClient as c,
+  FieldGroup as d,
+  createLucideIcon as e,
+  exportHaircutHistoryExcel as f,
   getEmployees as g,
   createEmployee as h,
   deleteEmployee as i,
   updateEmployee as j,
   buttonVariants as k,
-  ChevronRight as l,
-  getPositions as m,
-  routerUttYZnds as r,
+  getPositions as l,
+  ChevronRight as m,
+  routerPksdRzJZ as r,
   useSession as u
 };
