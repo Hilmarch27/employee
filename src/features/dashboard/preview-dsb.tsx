@@ -57,23 +57,23 @@ function COLUMNS_PREVIEW_HAIRCUT(): ColumnDef<HaircutHistory>[] {
 				<DataTableColumnHeader column={column} title="Date" />
 			),
 			cell: ({ row }) => {
-				const haircutDate = row.getValue('haircutDate');
-				if (
-					haircutDate instanceof Date &&
-					!Number.isNaN(haircutDate.getTime())
-				) {
-					return (
-						<div>
-							{haircutDate.toLocaleDateString('id-ID', {
-								weekday: 'long',
-								day: 'numeric',
-								month: 'long',
-								year: 'numeric',
-							})}
-						</div>
-					);
-				}
-				return <div>-</div>;
+				const value = row.getValue<number>('haircutDate');
+
+				if (!value) return <div>-</div>;
+
+				const date = new Date(value * 1000); // unix → ms
+
+				return (
+					<div>
+						{date.toLocaleDateString('id-ID', {
+							timeZone: 'Asia/Jakarta',
+							weekday: 'long',
+							day: 'numeric',
+							month: 'long',
+							year: 'numeric',
+						})}
+					</div>
+				);
 			},
 			minSize: 200,
 			maxSize: 200,

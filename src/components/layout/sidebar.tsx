@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
-import { Command, Home, History, LogOut, Users } from 'lucide-react';
+import { Command, History, Home, LogOut, Users } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import {
 	Sidebar,
