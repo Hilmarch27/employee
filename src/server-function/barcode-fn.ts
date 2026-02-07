@@ -291,16 +291,13 @@ export const getHaircutHistory = createServerFn({ method: 'GET' })
 export const getPreviewHaircut = createServerFn({ method: 'GET' }).handler(
 	async () => {
 		try {
-			// Filter per bulan (bulan ini)
 			const now = new Date();
 			const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 			const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-			// Atur ke awal dan akhir hari
 			currentMonthStart.setHours(0, 0, 0, 0);
 			nextMonthStart.setHours(0, 0, 0, 0);
 
-			// Query with join, sorted by haircutDate only
 			const records = await db
 				.select({
 					id: haircutHistory.id,
@@ -324,7 +321,6 @@ export const getPreviewHaircut = createServerFn({ method: 'GET' }).handler(
 				)
 				.orderBy(desc(haircutHistory.haircutDate));
 
-			// Format records
 			const formattedRecords = records.map((record) => {
 				const haircutDate = new Date(record.haircutDate);
 
@@ -336,11 +332,13 @@ export const getPreviewHaircut = createServerFn({ method: 'GET' }).handler(
 					position: record.employeePosition,
 					haircutDate: record.haircutDate,
 					formattedTime: haircutDate.toLocaleTimeString('id-ID', {
+						timeZone: 'Asia/Jakarta', // ✅ FIX: Tambahkan timezone
 						hour: '2-digit',
 						minute: '2-digit',
 						second: '2-digit',
 					}),
 					monthYear: haircutDate.toLocaleDateString('id-ID', {
+						timeZone: 'Asia/Jakarta', // ✅ Tambahkan juga di sini untuk konsistensi
 						month: 'long',
 						year: 'numeric',
 					}),
