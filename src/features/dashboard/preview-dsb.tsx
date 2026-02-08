@@ -94,6 +94,8 @@ export default function PreviewDsb() {
 	const { data: preview, isLoading } = useQuery({
 		queryKey: ['preview-haircut'],
 		queryFn: () => getData(),
+		staleTime: Infinity,
+		gcTime: Infinity,
 	});
 
 	const columns = useMemo(() => {

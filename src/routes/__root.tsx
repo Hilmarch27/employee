@@ -44,7 +44,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<Toaster />
+				<Toaster richColors position="top-right" />
 				<LayoutSidebar>{children}</LayoutSidebar>
 				{/* <TanStackDevtools
 					config={{

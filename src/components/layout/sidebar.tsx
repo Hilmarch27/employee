@@ -108,6 +108,7 @@ function SecondaryNav({
 						<SidebarMenuItem key={item.title}>
 							{item.title === 'Logout' ? (
 								<SidebarMenuButton
+									className="cursor-pointer"
 									size="sm"
 									onClick={handleLogout}
 								>

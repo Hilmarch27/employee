@@ -1,24 +1,17 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router';
-import { Loader2 } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
 import PreviewDsb from '@/features/dashboard/preview-dsb';
 import ScanDsb from '@/features/dashboard/scan-dsb';
-import { useSession } from '@/integrations/auth/auth-client';
+import { authMiddleware } from '@/middleware/auth';
 
-export const Route = createFileRoute('/')({ component: App });
+export const Route = createFileRoute('/')({
+	component: App,
+	server: {
+		middleware: [authMiddleware],
+	},
+});
 
 function App() {
-	const { data: session, isPending } = useSession();
-	if (isPending) {
-		return (
-			<div className="flex items-center justify-center h-screen">
-				<Loader2 className="size-10 animate-spin" />
-			</div>
-		);
-	}
-
-	return !session?.user ? (
-		<Navigate to="/signin" />
-	) : (
+	return (
 		<div className="flex flex-col justify-between pe-4">
 			<ScanDsb />
 			<PreviewDsb />
