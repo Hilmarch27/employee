@@ -3,6 +3,11 @@ import { and, desc, eq, gte, lt, lte, type SQL, sql } from 'drizzle-orm';
 import z from 'zod';
 import { db } from '@/db';
 import { employees, haircutHistory } from '@/db/schema';
+import { getHaircutHistoryCacheKey } from '@/lib/cache-keys';
+import {
+	haircutHistoryCache,
+	invalidateHaircutHistoryCache,
+} from '@/lib/server-cache';
 
 export const scanBarcode = createServerFn({ method: 'POST' })
 	.inputValidator(
@@ -64,6 +69,7 @@ export const scanBarcode = createServerFn({ method: 'POST' })
 				})
 				.returning();
 
+			invalidateHaircutHistoryCache();
 			return {
 				message: 'Haircut berhasil dicatat',
 				result: {
@@ -79,6 +85,21 @@ export const scanBarcode = createServerFn({ method: 'POST' })
 		}
 	});
 
+type HaircutHistoryResult = {
+	data: Array<{
+		id: string;
+		employeeId: string | null;
+		name: string | null;
+		badge: string | null;
+		position: string | null;
+		haircutDate: Date;
+		formattedTime: string;
+		monthYear: string;
+		createdAt: Date | null;
+	}>;
+	total: number;
+};
+
 export const getHaircutHistory = createServerFn({ method: 'GET' })
 	.inputValidator(
 		z
@@ -87,8 +108,14 @@ export const getHaircutHistory = createServerFn({ method: 'GET' })
 			})
 			.optional(),
 	)
-	.handler(async ({ data }) => {
+	.handler(async ({ data }): Promise<HaircutHistoryResult> => {
 		const { range = [] } = data || {};
+		const cacheKey = getHaircutHistoryCacheKey(data?.range);
+		const cached = haircutHistoryCache.get(cacheKey) as
+			| HaircutHistoryResult
+			| undefined;
+		if (cached) return cached;
+
 		try {
 			const filters: SQL[] = [];
 
@@ -153,10 +180,12 @@ export const getHaircutHistory = createServerFn({ method: 'GET' })
 				};
 			});
 
-			return {
+			const result = {
 				data: formattedRecords,
 				total: formattedRecords.length,
 			};
+			haircutHistoryCache.set(cacheKey, result);
+			return result;
 		} catch (error) {
 			console.error('Error fetching haircut history:', error);
 			throw new Error('Gagal mengambil data history');

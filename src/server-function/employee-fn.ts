@@ -7,7 +7,14 @@ import { count, desc, eq } from 'drizzle-orm';
 import * as XLSX from 'xlsx';
 import z from 'zod';
 import { db } from '@/db';
+import type { Employee } from '@/db/schema';
 import { employees } from '@/db/schema';
+import { EMPLOYEES_CACHE_KEY } from '@/lib/cache-keys';
+import {
+	employeesCache,
+	invalidateEmployeesCache,
+	invalidateHaircutHistoryCache,
+} from '@/lib/server-cache';
 import { generateBadgeNumber } from '@/lib/utils';
 import { getHaircutHistory } from '@/server-function/barcode-fn';
 
@@ -56,6 +63,7 @@ export const createEmployee = createServerFn({ method: 'POST' })
 			throw new Error('Failed to create employee');
 		}
 
+		invalidateEmployeesCache();
 		return {
 			message: 'Employee created successfully',
 			result: employee,
@@ -63,12 +71,17 @@ export const createEmployee = createServerFn({ method: 'POST' })
 	});
 
 export const getEmployees = createServerFn({ method: 'GET' }).handler(
-	async () => {
-		const employee = await db
+	async (): Promise<Employee[]> => {
+		const cached = employeesCache.get(EMPLOYEES_CACHE_KEY) as
+			| Employee[]
+			| undefined;
+		if (cached) return cached;
+		const list = await db
 			.select()
 			.from(employees)
 			.orderBy(desc(employees.createdAt));
-		return employee;
+		employeesCache.set(EMPLOYEES_CACHE_KEY, list);
+		return list;
 	},
 );
 
@@ -98,6 +111,8 @@ export const updateEmployee = createServerFn({ method: 'POST' })
 			throw new Error('Failed to update employee');
 		}
 
+		invalidateEmployeesCache();
+		invalidateHaircutHistoryCache();
 		return {
 			message: 'Employee updated successfully',
 			result: updatedEmployee,
@@ -119,6 +134,8 @@ export const deleteEmployee = createServerFn({ method: 'POST' })
 		// Delete employee
 		await db.delete(employees).where(eq(employees.id, data.id));
 
+		invalidateEmployeesCache();
+		invalidateHaircutHistoryCache();
 		return {
 			message: 'Employee deleted successfully',
 		};
@@ -240,9 +257,9 @@ export const exportHaircutHistoryExcel = createServerFn({ method: 'GET' })
 
 					wsData.push([
 						index + 1,
-						item.name,
-						item.position,
-						item.badge,
+						item.name ?? 'N/A',
+						item.position ?? 'N/A',
+						item.badge ?? 'N/A',
 						formattedDate,
 						item.formattedTime,
 						item.monthYear,
