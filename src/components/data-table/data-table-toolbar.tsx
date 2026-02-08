@@ -1,16 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import type { Column, Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 import React from 'react';
-import { toast } from 'sonner';
 import { DataTableFacetedFilter } from '@/components/data-table/data-table-faceted-filter';
 import { Button } from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import type { Employee, HaircutHistory, User } from '@/db/schema';
 import { cn } from '@/lib/utils';
-import { createBarcode } from '@/server-function/barcode-fn';
 import { getPositions } from '@/server-function/employee-fn';
 import { DataTableDateFilter } from './data-table-date-filter';
 import { DataTableViewOptions } from './data-table-view-options';
@@ -22,24 +20,7 @@ interface DataTableToolbarProps<TData>
 export function DataTableToolbar<
 	TData extends Employee | HaircutHistory | User,
 >({ table, children, className, ...props }: DataTableToolbarProps<TData>) {
-	const postBarcode = useServerFn(createBarcode);
-	const queryClient = useQueryClient();
-
-	const { mutateAsync } = useMutation({
-		mutationFn: postBarcode,
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['employees'] });
-			toast.success('Barcode created successfully');
-			table.resetRowSelection();
-		},
-		onError: () => {
-			toast.error('Failed to create barcode');
-		},
-	});
-
 	const isFiltered = table.getState().columnFilters.length > 0;
-
-	const selectedRows = table.getSelectedRowModel().rows;
 
 	const columns = React.useMemo(
 		() => table.getAllColumns().filter((column) => column.getCanFilter()),
@@ -49,25 +30,6 @@ export function DataTableToolbar<
 	const onReset = React.useCallback(() => {
 		table.resetColumnFilters();
 	}, [table]);
-
-	const handleCreateBarcode = () => {
-		if (selectedRows.length === 0) {
-			toast.error('Please select at least one employee');
-			return;
-		}
-
-		const items = selectedRows.map((row) => ({
-			id: row.original.id,
-			name: row.original.name,
-		}));
-
-		// Gunakan mutateAsync yang return Promise
-		toast.promise(mutateAsync({ data: { items } }), {
-			loading: `Creating ${items.length} barcode(s)...`,
-			success: (data) => `${data.count} barcode(s) created!`,
-			error: 'Failed to create barcodes',
-		});
-	};
 
 	return (
 		<div
@@ -95,11 +57,6 @@ export function DataTableToolbar<
 						</Button>
 					)}
 				</div>
-				{selectedRows.length > 0 && (
-					<Button size={'sm'} onClick={handleCreateBarcode}>
-						{`Create Barcode ${selectedRows.length} Selected`}
-					</Button>
-				)}
 			</div>
 			<div className="flex items-center space-x-2">
 				{children}

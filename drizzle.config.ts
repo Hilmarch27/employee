@@ -1,4 +1,4 @@
-  import { envServer } from '@/env'
+import { envServer } from '@/env'
 import { config } from 'dotenv'
 import { defineConfig } from 'drizzle-kit'
 
@@ -7,8 +7,9 @@ config()
 export default defineConfig({
   out: './drizzle',
   schema: './src/db/schema.ts',
-  dialect: 'sqlite',
+  dialect: 'turso',
   dbCredentials: {
-    url: envServer.DB_FILE_NAME,
+    url: envServer.TURSO_DATABASE_URL,
+    authToken: envServer.TURSO_AUTH_TOKEN,
   },
 })

@@ -16,7 +16,7 @@ function App() {
 		);
 	}
 
-	return !session ? (
+	return !session?.user ? (
 		<Navigate to="/signin" />
 	) : (
 		<div className="flex flex-col justify-between pe-4">

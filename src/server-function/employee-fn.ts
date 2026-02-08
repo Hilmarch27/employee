@@ -7,10 +7,9 @@ import { count, desc, eq } from 'drizzle-orm';
 import * as XLSX from 'xlsx';
 import z from 'zod';
 import { db } from '@/db';
-import { employees, user } from '@/db/schema';
-import { utapi } from '@/integrations/uploadthing/config';
+import { employees } from '@/db/schema';
 import { generateBadgeNumber } from '@/lib/utils';
-import { genQRCode, getHaircutHistory } from '@/server-function/barcode-fn';
+import { getHaircutHistory } from '@/server-function/barcode-fn';
 
 export const CreateEmployeeSc = z.object({
 	name: z.string().min(1),
@@ -57,32 +56,9 @@ export const createEmployee = createServerFn({ method: 'POST' })
 			throw new Error('Failed to create employee');
 		}
 
-		// Generate QR code
-		const qrCode = await genQRCode({
-			name: employee.name,
-			id: employee.id,
-		});
-
-		const file = new File([new Uint8Array(qrCode)], `${employee.id}.png`, {
-			type: 'image/png',
-		});
-
-		const res = await utapi.uploadFiles(file);
-
-		if (!res.data) {
-			throw new Error('Failed to upload Barcode');
-		}
-
-		// Update employee with barcodeUrl
-		const [updatedEmployee] = await db
-			.update(employees)
-			.set({ barcodeUrl: res.data.ufsUrl })
-			.where(eq(employees.id, employee.id))
-			.returning();
-
 		return {
 			message: 'Employee created successfully',
-			result: updatedEmployee ? [updatedEmployee] : [employee],
+			result: employee,
 		};
 	});
 

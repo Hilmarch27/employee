@@ -1,8 +1,9 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: off */
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Calendar, Text, UserRoundPlus } from 'lucide-react';
+import { Calendar, QrCode, Text, UserRoundPlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table/data-table';
@@ -11,16 +12,10 @@ import { DataTableRowActions } from '@/components/data-table/data-table-row-acti
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import {
 	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
 	AlertDialogContent,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Dialog,
 	DialogContent,
@@ -36,6 +31,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import type { Employee } from '@/db/schema';
+import BarcodeEmployee from '@/features/employee/barcode';
 import {
 	dateRange,
 	includesTrimmed,
@@ -49,6 +45,29 @@ import {
 	UpdateEmployeeSc,
 	updateEmployee,
 } from '@/server-function/employee-fn';
+
+function BarcodeCell({ name, id }: { name: string; id: string }) {
+	const [open, setOpen] = useState(false);
+	return (
+		<AlertDialog open={open} onOpenChange={setOpen}>
+			<AlertDialogTrigger asChild>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="h-8 w-8"
+					title="View / Download / Print barcode"
+				>
+					<QrCode className="h-4 w-4" />
+				</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent className="p-4 w-[330px] h-[350px] flex flex-col items-center justify-center overflow-auto box-border">
+				<div className="flex-1 flex items-center justify-center min-h-0 py-10">
+					<BarcodeEmployee name={name} id={id} onClose={() => setOpen(false)} />
+				</div>
+			</AlertDialogContent>
+		</AlertDialog>
+	);
+}
 
 function COLUMNS_EMPLOYEES(username: string): ColumnDef<Employee>[] {
 	const baseColumns: ColumnDef<Employee>[] = [
@@ -113,124 +132,19 @@ function COLUMNS_EMPLOYEES(username: string): ColumnDef<Employee>[] {
 	];
 
 	if (username === 'admin') {
-		// Add select column at the beginning (leftmost)
-		baseColumns.unshift({
-			id: 'select',
-			header: ({ table }) => {
-				return (
-					<Checkbox
-						checked={
-							table.getIsAllPageRowsSelected() ||
-							(table.getIsSomePageRowsSelected() && 'indeterminate')
-						}
-						onCheckedChange={(value) =>
-							table.toggleAllPageRowsSelected(!!value)
-						}
-						aria-label="Select all"
-						className="translate-y-[2px] mb-2"
-					/>
-				);
-			},
-			cell: ({ row }) => {
-				return (
-					<Checkbox
-						checked={row.getIsSelected()}
-						onCheckedChange={(value) => row.toggleSelected(!!value)}
-						aria-label="Select row"
-						className="translate-y-[2px] mb-2"
-					/>
-				);
-			},
-			minSize: 30,
-			maxSize: 30,
-			enableResizing: false,
-			enablePinning: false,
-			enableSorting: false,
-			enableHiding: false,
-		});
-
-		// Add barcodeUrl and actions columns at the end (rightmost)
+		// Add barcode (auto-generated) and actions columns at the end (rightmost)
 		baseColumns.push(
 			{
 				id: 'barcodeUrl',
-				accessorKey: 'barcodeUrl',
+				accessorKey: 'id',
 				header: ({ column }) => (
 					<DataTableColumnHeader column={column} title="Barcode" />
 				),
-				cell: ({ row }) => {
-					const barcodeUrl = row.getValue('barcodeUrl');
-					if (!barcodeUrl) return null;
-
-					const fullUrl = `${barcodeUrl}`;
-
-					const handleDownload = () => {
-						const link = document.createElement('a');
-						link.href = fullUrl;
-						const fileName =
-							typeof barcodeUrl === 'string' && barcodeUrl.split
-								? barcodeUrl.split('/').pop() || 'barcode.png'
-								: 'barcode.png';
-						link.download = fileName;
-						link.click();
-					};
-
-					const handlePrint = () => {
-						const printWindow = window.open('', '_blank');
-						if (!printWindow) return;
-						printWindow.document.write(`
-					<html>
-						<head><title>Print Barcode</title></head>
-						<body style="text-align:center;">
-						<img src="${fullUrl}" style="width:600px;height:700px;" />
-						<script>window.print(); window.close();</script>
-						</body>
-					</html>`);
-						printWindow.document.close();
-					};
-
-					return (
-						<AlertDialog>
-							<AlertDialogTrigger
-								asChild
-								className="flex items-center justify-center cursor-pointer"
-								title="Click to view barcode"
-							>
-								<img
-									src={`${barcodeUrl}`}
-									alt="Barcode"
-									width={100}
-									height={100}
-									className="w-10 h-10 object-cover"
-								/>
-							</AlertDialogTrigger>
-							<AlertDialogContent className="w-fit h-fit">
-								<AlertDialogHeader>
-									<AlertDialogTitle>Print Barcode</AlertDialogTitle>
-								</AlertDialogHeader>
-								<div className="flex items-center justify-center">
-									<img
-										src={fullUrl}
-										alt="Barcode"
-										width={200}
-										height={200}
-										className="w-[200px] h-[200px]r"
-									/>
-								</div>
-								<AlertDialogFooter>
-									<AlertDialogAction onClick={handleDownload}>
-										Download
-									</AlertDialogAction>
-									<AlertDialogAction onClick={handlePrint}>
-										Print
-									</AlertDialogAction>
-									<AlertDialogCancel>Cancel</AlertDialogCancel>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					);
-				},
-				minSize: 100,
-				maxSize: 100,
+				cell: ({ row }) => (
+					<BarcodeCell name={row.original.name} id={row.original.id} />
+				),
+				minSize: 60,
+				maxSize: 80,
 			},
 			{
 				id: 'actions',

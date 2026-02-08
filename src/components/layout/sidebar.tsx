@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
 import { Command, History, Home, LogOut, Users } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
@@ -87,30 +87,41 @@ function SecondaryNav({
 	items,
 	...props
 }: SecondaryNavProps & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+	const navigate = useNavigate();
+
+	async function handleLogout(e: React.MouseEvent) {
+		e.preventDefault();
+		await authClient.signOut({
+			fetchOptions: {
+				onSuccess: () => {
+					navigate({ to: '/signin' });
+				},
+			},
+		});
+	}
+
 	return (
 		<SidebarGroup {...props}>
 			<SidebarGroupContent>
 				<SidebarMenu>
 					{items.map((item) => (
 						<SidebarMenuItem key={item.title}>
-							<SidebarMenuButton
-								asChild
-								size="sm"
-								onClick={async () => {
-									await authClient.signOut({
-										fetchOptions: {
-											onSuccess: () => {
-												<Navigate to="/signin" />;
-											},
-										},
-									});
-								}}
-							>
-								<a href={item.url}>
+							{item.title === 'Logout' ? (
+								<SidebarMenuButton
+									size="sm"
+									onClick={handleLogout}
+								>
 									<item.icon />
 									<span>{item.title}</span>
-								</a>
-							</SidebarMenuButton>
+								</SidebarMenuButton>
+							) : (
+								<SidebarMenuButton asChild size="sm">
+									<a href={item.url}>
+										<item.icon />
+										<span>{item.title}</span>
+									</a>
+								</SidebarMenuButton>
+							)}
 						</SidebarMenuItem>
 					))}
 				</SidebarMenu>
