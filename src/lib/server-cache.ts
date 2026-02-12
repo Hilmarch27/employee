@@ -1,6 +1,6 @@
 import { LRUCache } from 'lru-cache';
 
-const MAX_ITEMS = 1000;
+const MAX_ITEMS = 5000;
 
 /** Cache for getEmployees. No TTL – invalidate only on mutation (insert/delete). */
 export const employeesCache = new LRUCache<string, object>({

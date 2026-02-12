@@ -15,7 +15,8 @@ import {
 	SidebarMenuItem,
 	SidebarProvider,
 } from '@/components/ui/sidebar';
-import { authClient } from '@/integrations/auth/auth-client';
+import { APP_VERSION } from '@/constant';
+import { authClient, useSession } from '@/integrations/auth/auth-client';
 
 export const DATA_SIDEBAR = {
 	navMain: [
@@ -132,6 +133,8 @@ function SecondaryNav({
 }
 
 function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { data: session } = useSession();
+	const username = session?.user.username?.toUpperCase();
 	return (
 		<Sidebar variant="inset" {...props}>
 			<SidebarHeader>
@@ -144,7 +147,9 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								</div>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-medium">USER MANAGEMENT</span>
-									<span className="truncate text-xs">ADMIN</span>
+									<span className="truncate text-xs">
+										{username} | V.{APP_VERSION}
+									</span>
 								</div>
 							</a>
 						</SidebarMenuButton>
